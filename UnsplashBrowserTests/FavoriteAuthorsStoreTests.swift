@@ -5,49 +5,133 @@
 //  Created by Quân Đinh on 22.11.25.
 //
 
-import Testing
 import Foundation
+import Testing
+
 @testable import UnsplashBrowser
 
+@MainActor
 struct FavoriteAuthorsStoreTests {
 
-    @Test func test_toggleAdds() async throws {
-        // Create FavoriteAuthorsStore instance with fresh UserDefaults
-        // Create test author (id, username, name, portfolioUrl)
-        // Assert author is not initially favorited
-        // Call toggleFavorite() to add author
-        // Assert author is now favorited
-        // Assert favorites array contains the author
-        // Assert favorites count increased by 1
+  // Helper to clear UserDefaults before each test
+  private func clearDefaults() {
+    UserDefaults.standard.removeObject(forKey: "favoriteAuthors")
+  }
+
+  @Test func test_toggleAdds() async throws {
+    clearDefaults()
+
+    let store = FavoriteAuthorsStore()
+    let testAuthor = FavoriteAuthor(
+      id: "test-1",
+      username: "testuser",
+      name: "Test User",
+      portfolioUrl: "https://example.com"
+    )
+
+    // Assert author is not initially favorited
+    #expect(!store.isFavorite(testAuthor.id))
+    #expect(store.favorites.isEmpty)
+
+    // Call toggleFavorite() to add author
+    store.toggleFavorite(testAuthor)
+
+    // Assert author is now favorited
+    #expect(store.isFavorite(testAuthor.id))
+    #expect(store.favorites.contains(testAuthor))
+    #expect(store.favorites.count == 1)
+  }
+
+  @Test func test_toggleRemoves() async throws {
+    clearDefaults()
+
+    let store = FavoriteAuthorsStore()
+    let testAuthor = FavoriteAuthor(
+      id: "test-2",
+      username: "testuser2",
+      name: "Test User 2",
+      portfolioUrl: "https://example.com/2"
+    )
+
+    // Add author to favorites
+    store.toggleFavorite(testAuthor)
+    #expect(store.isFavorite(testAuthor.id))
+    #expect(store.favorites.count == 1)
+
+    // Call toggleFavorite() again to remove author
+    store.toggleFavorite(testAuthor)
+
+    // Assert author is no longer favorited
+    #expect(!store.isFavorite(testAuthor.id))
+    #expect(!store.favorites.contains(testAuthor))
+    #expect(store.favorites.isEmpty)
+  }
+
+  @Test func test_persistedLoad() async throws {
+    clearDefaults()
+
+    let author1 = FavoriteAuthor(
+      id: "test-3",
+      username: "user1",
+      name: "User One",
+      portfolioUrl: "https://example.com/1"
+    )
+    let author2 = FavoriteAuthor(
+      id: "test-4",
+      username: "user2",
+      name: "User Two",
+      portfolioUrl: nil
+    )
+
+    // Create first store and add authors
+    do {
+      let store1 = FavoriteAuthorsStore()
+      store1.toggleFavorite(author1)
+      store1.toggleFavorite(author2)
+
+      #expect(store1.favorites.count == 2)
     }
-    
-    @Test func test_toggleRemoves() async throws {
-        // Create FavoriteAuthorsStore instance with fresh UserDefaults
-        // Create test author and add to favorites
-        // Assert author is favorited
-        // Call toggleFavorite() again to remove author
-        // Assert author is no longer favorited
-        // Assert favorites array does not contain the author
-        // Assert favorites count decreased by 1
-    }
-    
-    @Test func test_persistedLoad() async throws {
-        // Create FavoriteAuthorsStore instance with test UserDefaults suite
-        // Add multiple test authors to favorites
-        // Encode favorites to JSON and save to UserDefaults
-        // Create new FavoriteAuthorsStore instance with same UserDefaults suite
-        // Assert favorites are loaded from persistence
-        // Assert all authors are present with correct data
-        // Assert order is preserved if applicable
-    }
-    
-    @Test func test_isFavorite() async throws {
-        // Create FavoriteAuthorsStore instance
-        // Create test author and add to favorites
-        // Assert isFavorite(authorId) returns true for added author
-        // Assert isFavorite(authorId) returns false for non-existent author
-        // Remove author from favorites
-        // Assert isFavorite(authorId) now returns false
-    }
+
+    // Create new store instance - should load persisted data
+    let store2 = FavoriteAuthorsStore()
+
+    // Assert favorites are loaded from persistence
+    #expect(store2.favorites.count == 2)
+    #expect(store2.favorites.contains(author1))
+    #expect(store2.favorites.contains(author2))
+    #expect(store2.isFavorite(author1.id))
+    #expect(store2.isFavorite(author2.id))
+  }
+
+  @Test func test_isFavorite() async throws {
+    clearDefaults()
+
+    let store = FavoriteAuthorsStore()
+    let testAuthor = FavoriteAuthor(
+      id: "test-5",
+      username: "testuser5",
+      name: "Test User 5",
+      portfolioUrl: "https://example.com/5"
+    )
+
+    // Assert isFavorite returns false for non-existent author
+    #expect(!store.isFavorite(testAuthor.id))
+    #expect(!store.isFavorite("non-existent-id"))
+
+    // Add author to favorites
+    store.toggleFavorite(testAuthor)
+
+    // Assert isFavorite returns true for added author
+    #expect(store.isFavorite(testAuthor.id))
+
+    // Assert isFavorite still returns false for non-existent author
+    #expect(!store.isFavorite("another-non-existent-id"))
+
+    // Remove author from favorites
+    store.toggleFavorite(testAuthor)
+
+    // Assert isFavorite now returns false
+    #expect(!store.isFavorite(testAuthor.id))
+  }
 
 }
