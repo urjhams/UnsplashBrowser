@@ -1,6 +1,7 @@
 # UnsplashBrowser
 
 ## Tech stack
+
 - SwiftUI
 - MVVM
 - Actors for concurrency correctness
