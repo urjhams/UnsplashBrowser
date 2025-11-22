@@ -9,9 +9,13 @@ import SwiftUI
 
 @main
 struct UnsplashBrowserApp: App {
-    var body: some Scene {
-        WindowGroup {
-            ContentView()
-        }
+
+  let resolver = AppDIContainer.build()
+
+  var body: some Scene {
+    WindowGroup {
+      ContentView()
+        .environment(\.resolver, resolver)
     }
+  }
 }
