@@ -5,13 +5,17 @@ import Foundation
 import UIKit
 
 actor ImageLoaderImpl: ImageLoader {
+  
   private let session: URLSession
+
+  // NSCache is thread-safe already so it doesn't need to be isolated by actor
   nonisolated(unsafe) private let cache: NSCache<NSURL, UIImage> = {
     let cache = NSCache<NSURL, UIImage>()
     cache.countLimit = 1000  // Maximum 1000 images
     cache.totalCostLimit = 640 * 1024 * 1024  // 640 MB
     return cache
   }()
+
   private var ongoingTasks: [URL: Task<UIImage, Error>] = [:]
 
   init(session: URLSession = .shared) {
@@ -45,9 +49,7 @@ actor ImageLoaderImpl: ImageLoader {
         throw NSError(
           domain: "ImageLoader",
           code: -1,
-          userInfo: [
-            NSLocalizedDescriptionKey: "Failed to decode image"
-          ]
+          userInfo: [ NSLocalizedDescriptionKey: "Failed to decode image" ]
         )
       }
 
