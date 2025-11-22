@@ -1,5 +1,4 @@
-// APIConfig.swift
-// Configuration for Unsplash API
+// APIEndPoint.swift
 
 import Foundation
 
