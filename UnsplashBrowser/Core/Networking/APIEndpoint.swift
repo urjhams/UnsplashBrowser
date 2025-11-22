@@ -4,7 +4,7 @@ import Foundation
 
 enum APIConfig {
   static let baseURL = "https://api.unsplash.com/"
-  static let accessKey = Secret.accessKey
+  nonisolated static let accessKey = Secret.accessKey
 
   enum Endpoint {
     static let searchPhotos = "search/photos"

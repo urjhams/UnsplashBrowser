@@ -106,8 +106,116 @@ struct UnsplashAPIClientTests {
     #expect(photo.user.name == "Jeff Sheldon")
   }
 
-  @Test func test_httpError() async throws {
-    // Configure MockURLProtocol to return 500 status
+  @Test func test_badRequest() async throws {
+    // Configure MockURLProtocol to return 400 status
+    let config = URLSessionConfiguration.ephemeral
+    config.protocolClasses = [MockURLProtocol.self]
+    let mockSession = URLSession(configuration: config)
+
+    MockURLProtocol.requestHandler = { request in
+      let response = HTTPURLResponse(
+        url: request.url!,
+        statusCode: 400,
+        httpVersion: nil,
+        headerFields: nil
+      )!
+      return (response, nil)
+    }
+
+    let client = UnsplashAPIClientImpl(session: mockSession, accessKey: "test-key")
+
+    do {
+      _ = try await client.searchPhotos(query: "test")
+      Issue.record("Expected bad request error to be thrown")
+    } catch let error as UnsplashAPIError {
+      #expect(error == .badRequest)
+      #expect(error.localizedDescription.contains("Bad Request"))
+      #expect(error.localizedDescription.contains("missing a required parameter"))
+    }
+  }
+  
+  @Test func test_unauthorized() async throws {
+    let config = URLSessionConfiguration.ephemeral
+    config.protocolClasses = [MockURLProtocol.self]
+    let mockSession = URLSession(configuration: config)
+
+    MockURLProtocol.requestHandler = { request in
+      let response = HTTPURLResponse(
+        url: request.url!,
+        statusCode: 401,
+        httpVersion: nil,
+        headerFields: nil
+      )!
+      return (response, nil)
+    }
+
+    let client = UnsplashAPIClientImpl(session: mockSession, accessKey: "test-key")
+
+    do {
+      _ = try await client.searchPhotos(query: "test")
+      Issue.record("Expected unauthorized error to be thrown")
+    } catch let error as UnsplashAPIError {
+      #expect(error == .unauthorized)
+      #expect(error.localizedDescription.contains("Unauthorized"))
+      #expect(error.localizedDescription.contains("Invalid Access Token"))
+    }
+  }
+  
+  @Test func test_forbidden() async throws {
+    let config = URLSessionConfiguration.ephemeral
+    config.protocolClasses = [MockURLProtocol.self]
+    let mockSession = URLSession(configuration: config)
+
+    MockURLProtocol.requestHandler = { request in
+      let response = HTTPURLResponse(
+        url: request.url!,
+        statusCode: 403,
+        httpVersion: nil,
+        headerFields: nil
+      )!
+      return (response, nil)
+    }
+
+    let client = UnsplashAPIClientImpl(session: mockSession, accessKey: "test-key")
+
+    do {
+      _ = try await client.searchPhotos(query: "test")
+      Issue.record("Expected forbidden error to be thrown")
+    } catch let error as UnsplashAPIError {
+      #expect(error == .forbidden)
+      #expect(error.localizedDescription.contains("Forbidden"))
+      #expect(error.localizedDescription.contains("Missing permissions"))
+    }
+  }
+  
+  @Test func test_notFound() async throws {
+    let config = URLSessionConfiguration.ephemeral
+    config.protocolClasses = [MockURLProtocol.self]
+    let mockSession = URLSession(configuration: config)
+
+    MockURLProtocol.requestHandler = { request in
+      let response = HTTPURLResponse(
+        url: request.url!,
+        statusCode: 404,
+        httpVersion: nil,
+        headerFields: nil
+      )!
+      return (response, nil)
+    }
+
+    let client = UnsplashAPIClientImpl(session: mockSession, accessKey: "test-key")
+
+    do {
+      _ = try await client.searchPhotos(query: "test")
+      Issue.record("Expected not found error to be thrown")
+    } catch let error as UnsplashAPIError {
+      #expect(error == .notFound)
+      #expect(error.localizedDescription.contains("Not Found"))
+      #expect(error.localizedDescription.contains("doesn't exist"))
+    }
+  }
+  
+  @Test func test_serverError() async throws {
     let config = URLSessionConfiguration.ephemeral
     config.protocolClasses = [MockURLProtocol.self]
     let mockSession = URLSession(configuration: config)
@@ -124,9 +232,13 @@ struct UnsplashAPIClientTests {
 
     let client = UnsplashAPIClientImpl(session: mockSession, accessKey: "test-key")
 
-    // Call searchPhotos and expect it to throw
-    await #expect(throws: Error.self) {
-      try await client.searchPhotos(query: "test")
+    do {
+      _ = try await client.searchPhotos(query: "test")
+      Issue.record("Expected server error to be thrown")
+    } catch let error as UnsplashAPIError {
+      #expect(error == .serverError)
+      #expect(error.localizedDescription.contains("Server Error"))
+      #expect(error.localizedDescription.contains("went wrong on our end"))
     }
   }
 
@@ -187,10 +299,9 @@ struct UnsplashAPIClientTests {
     do {
       _ = try await client.searchPhotos(query: "test")
       Issue.record("Expected rate limit error to be thrown")
-    } catch let error as NSError {
-      #expect(error.domain == "UnsplashAPI")
-      #expect(error.code == 429)
-      #expect(error.localizedDescription.contains("Rate limit"))
+    } catch let error as UnsplashAPIError {
+      #expect(error == .rateLimitExceeded)
+      #expect(error.localizedDescription.contains("Rate Limit"))
     }
   }
 

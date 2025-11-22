@@ -24,7 +24,7 @@ actor UnsplashAPIClientImpl: UnsplashAPIClient {
         try await Task.sleep(nanoseconds: UInt64((minRequestInterval - elapsed) * 1_000_000_000))
       }
     }
-    
+
     lastRequestTime = Date()
 
     // Build URL with query parameters
@@ -52,26 +52,9 @@ actor UnsplashAPIClientImpl: UnsplashAPIClient {
       throw URLError(.badServerResponse)
     }
 
-    // Handle rate limiting (429)
-    if httpResponse.statusCode == 429 {
-      throw NSError(
-        domain: "UnsplashAPI",
-        code: 429,
-        userInfo: [
-          NSLocalizedDescriptionKey: "Rate limit exceeded"
-        ]
-      )
-    }
-
-    // Handle other HTTP errors
+    // Handle HTTP errors
     guard (200...299).contains(httpResponse.statusCode) else {
-      throw NSError(
-        domain: "UnsplashAPI",
-        code: httpResponse.statusCode,
-        userInfo: [
-          NSLocalizedDescriptionKey: "HTTP error: \(httpResponse.statusCode)"
-        ]
-      )
+      throw UnsplashAPIError(statusCode: httpResponse.statusCode)
     }
 
     // Decode response
