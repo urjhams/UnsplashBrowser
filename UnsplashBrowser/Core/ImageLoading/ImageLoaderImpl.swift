@@ -9,7 +9,7 @@ actor ImageLoaderImpl: ImageLoader {
   nonisolated(unsafe) private let cache: NSCache<NSURL, UIImage> = {
     let cache = NSCache<NSURL, UIImage>()
     cache.countLimit = 1000  // Maximum 1000 images
-    cache.totalCostLimit = 100 * 1024 * 1024  // 100 MB
+    cache.totalCostLimit = 640 * 1024 * 1024  // 640 MB
     return cache
   }()
   private var ongoingTasks: [URL: Task<UIImage, Error>] = [:]
