@@ -6,6 +6,10 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		4F2C8C1D2ED1C90C003DC3BA /* Swinject in Frameworks */ = {isa = PBXBuildFile; productRef = 4F2C8C1C2ED1C90C003DC3BA /* Swinject */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXContainerItemProxy section */
 		4F81256F2ED1C3EF00C3B515 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -52,6 +56,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4F2C8C1D2ED1C90C003DC3BA /* Swinject in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -112,6 +117,7 @@
 			);
 			name = UnsplashBrowser;
 			packageProductDependencies = (
+				4F2C8C1C2ED1C90C003DC3BA /* Swinject */,
 			);
 			productName = UnsplashBrowser;
 			productReference = 4F8125612ED1C3ED00C3B515 /* UnsplashBrowser.app */;
@@ -195,6 +201,9 @@
 			);
 			mainGroup = 4F8125582ED1C3ED00C3B515;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				4F2C8C1B2ED1C90C003DC3BA /* XCRemoteSwiftPackageReference "Swinject" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 4F8125622ED1C3ED00C3B515 /* Products */;
 			projectDirPath = "";
@@ -580,6 +589,25 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		4F2C8C1B2ED1C90C003DC3BA /* XCRemoteSwiftPackageReference "Swinject" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "git@github.com:Swinject/Swinject.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 2.10.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		4F2C8C1C2ED1C90C003DC3BA /* Swinject */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 4F2C8C1B2ED1C90C003DC3BA /* XCRemoteSwiftPackageReference "Swinject" */;
+			productName = Swinject;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 4F8125592ED1C3ED00C3B515 /* Project object */;
 }
