@@ -46,6 +46,7 @@ struct PhotoDetailView: View {
       }
     }
     .navigationBarTitleDisplayMode(.inline)
+    .scrollIndicators(.never)
     .task {
       await initializeFavoriteStore()
     }
