@@ -16,14 +16,21 @@ struct FavoriteAuthor: Codable, Identifiable, Hashable {
 class FavoriteAuthorsStore {
   @ObservationIgnored private let favoritesKey = "favoriteAuthors"
   
+  // task to track the debounce task
+  @ObservationIgnored private var saveTask: Task<Void, Never>?
+  
   var favorites: [FavoriteAuthor] {
     didSet {
-      saveFavorites()
+      debouncedSave()
     }
   }
   
   init() {
     self.favorites = Self.loadFavorites()
+  }
+  
+  deinit {
+    saveTask?.cancel()
   }
   
   private static func loadFavorites() -> [FavoriteAuthor] {
@@ -37,6 +44,16 @@ class FavoriteAuthorsStore {
     } catch {
       print("Failed to decode favorites: \(error)")
       return []
+    }
+  }
+  
+  /// make the save process devounced to avoid using too much expensive JSONEncoder
+  private func debouncedSave() {
+    saveTask?.cancel()
+    saveTask = Task { @MainActor in
+      try? await Task.sleep(nanoseconds: 300_000_000) // 300ms debounce
+      guard !Task.isCancelled else { return }
+      saveFavorites()
     }
   }
   
