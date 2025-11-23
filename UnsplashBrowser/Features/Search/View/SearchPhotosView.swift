@@ -12,6 +12,7 @@ struct SearchPhotosView: View {
   @State private var viewModel: SearchPhotosViewModel?
   @State private var searchText = ""
   @State private var searchTask: Task<Void, Never>?
+  @State private var cachedGeometryWidth: CGFloat = 0
   @Namespace private var detailNamespace
   
   private var columns: [GridItem] {
@@ -88,10 +89,18 @@ extension SearchPhotosView {
   }
 
   private func photosGrid(viewModel: SearchPhotosViewModel, geometry: GeometryProxy) -> some View {
+    // Cache geometry width to avoid recalculating on every render
+    let width = geometry.size.width
+    if cachedGeometryWidth != width {
+      Task { @MainActor in
+        cachedGeometryWidth = width
+      }
+    }
+    
     let columnCount = CGFloat(columns.count)
     let spacing: CGFloat = 4
     let totalSpacing = spacing * (columnCount + 1)
-    let availableWidth = geometry.size.width - totalSpacing
+    let availableWidth = width - totalSpacing
     let cellSize = availableWidth / columnCount
     
     return ScrollView {
