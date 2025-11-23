@@ -24,8 +24,8 @@ struct PhotoDetailView: View {
 
   private enum Layout {
     static let profileImageSize: CGFloat = 50
-    static let iPadCornerRadius: CGFloat = 12
-    static let defaultCornerRadius: CGFloat = 8
+    static let iPadCornerRadius: CGFloat = 4
+    static let defaultCornerRadius: CGFloat = 2
     static let contentSpacing: CGFloat = 16
     static let authorSpacing: CGFloat = 12
     static let metadataSpacing: CGFloat = 8
@@ -44,7 +44,6 @@ struct PhotoDetailView: View {
             .padding(.bottom)
         }
       }
-      .ignoresSafeArea(edges: [.top])
     }
     .navigationBarTitleDisplayMode(.inline)
     .task {

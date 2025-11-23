@@ -60,7 +60,7 @@ struct AuthorInfoView: View {
   private var favoriteButton: some View {
     Button(action: onToggleFavorite) {
       Image(systemName: isFavorite ? "heart.fill" : "heart")
-        .font(.title2)
+        .font(.title)
         .foregroundStyle(isFavorite ? .red : .primary)
         .contentTransition(.symbolEffect(.replace.offUp))
     }

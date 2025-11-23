@@ -25,6 +25,7 @@ struct UnsplashBrowserApp: App {
             Label("Favorites Author", systemImage: "heart.circle")
           }
       }
+      .tint(.black)
       .environment(\.resolver, resolver)
       .environment(\.isRunningOniPad, UIDevice.current.userInterfaceIdiom == .pad)
     }
