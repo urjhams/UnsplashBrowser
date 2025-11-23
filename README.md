@@ -9,7 +9,7 @@
 - NavigationStack & NavigationSplitView
 - Async/await networking
 - LazyVGrid + image caching
-- AppStorage for persistence
+- AppStorage/UserDefaults for persistence
 - WebView
 
 ## Structure

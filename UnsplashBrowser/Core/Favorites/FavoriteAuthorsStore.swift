@@ -8,7 +8,8 @@ struct FavoriteAuthor: Codable, Identifiable, Equatable {
   let id: String
   let username: String
   let name: String
-  let portfolioUrl: String?
+  let userImage: String?
+  let url: String?
 }
 
 @Observable

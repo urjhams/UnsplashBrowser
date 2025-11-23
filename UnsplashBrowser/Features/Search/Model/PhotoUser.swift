@@ -3,15 +3,24 @@
 
 import Foundation
 
+struct UserImages: Codable {
+  let small: String
+  let medium: String
+  let large: String
+}
+
+struct UserLinks: Codable {
+  let html: String
+}
+
 struct PhotoUser: Codable {
   let id: String
   let username: String
   let name: String
   let firstName: String?
   let lastName: String?
-  let instagramUsername: String?
-  let twitterUsername: String?
-  let portfolioUrl: String?
+  let profileImages: UserImages
+  let links: UserLinks
   
   enum CodingKeys: String, CodingKey {
     case id
@@ -19,9 +28,8 @@ struct PhotoUser: Codable {
     case name
     case firstName = "first_name"
     case lastName = "last_name"
-    case instagramUsername = "instagram_username"
-    case twitterUsername = "twitter_username"
-    case portfolioUrl = "portfolio_url"
+    case profileImages = "profile_image"
+    case links = "links"
   }
   
   /// Convert PhotoUser to FavoriteAuthor for persistence
@@ -30,7 +38,8 @@ struct PhotoUser: Codable {
       id: id,
       username: username,
       name: name,
-      portfolioUrl: portfolioUrl
+      userImage: profileImages.large,
+      url: links.html
     )
   }
 }

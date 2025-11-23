@@ -187,7 +187,7 @@ struct SearchPhotosViewModelTests {
     #expect(viewModel.photos[3].id == "photo-4")
 
     // Assert no duplicates
-    let ids = viewModel.photos.map { $0.id }
+    let ids = viewModel.photos.map(\.id)
     let uniqueIds = Set(ids)
     #expect(ids.count == uniqueIds.count)
   }
