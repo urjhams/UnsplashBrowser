@@ -13,10 +13,7 @@ struct PhotoDetailView: View {
   @Environment(\.dismiss) private var dismiss
 
   @State private var favoriteStore: FavoriteAuthorsStore?
-
-  private var isFavorite: Bool {
-    favoriteStore?.isFavorite(photo.user.id) ?? false
-  }
+  @State private var isFavorite = false
 
   var body: some View {
     GeometryReader { geometry in
@@ -87,6 +84,7 @@ struct PhotoDetailView: View {
     .task {
       if favoriteStore == nil {
         favoriteStore = resolver.resolve(FavoriteAuthorsStore.self)
+        updateFavoriteStatus()
       }
     }
   }
@@ -96,9 +94,14 @@ struct PhotoDetailView: View {
     return width * aspectRatio
   }
 
+  private func updateFavoriteStatus() {
+    isFavorite = favoriteStore?.isFavorite(photo.user.id) ?? false
+  }
+
   private func toggleFavorite() {
     let author = photo.user.toFavoriteAuthor()
     favoriteStore?.toggleFavorite(author)
+    updateFavoriteStatus()
   }
 
   private func formatDate(_ dateString: String) -> String? {
