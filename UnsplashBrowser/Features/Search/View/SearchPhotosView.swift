@@ -123,8 +123,9 @@ struct SearchPhotosView: View {
   @ViewBuilder
   private func photoCell(photo: UnsplashPhoto) -> some View {
     let aspectRatio = CGFloat(photo.width) / CGFloat(photo.height)
+    let placeholderColor = photo.color.map { Color(hex: $0) }
     if let thumbnailURL = URL(string: photo.urls.small), let imageLoader {
-      RemoteImageView(url: thumbnailURL, imageLoader: imageLoader)
+      RemoteImageView(url: thumbnailURL, imageLoader: imageLoader, placeholderColor: placeholderColor)
         .aspectRatio(aspectRatio, contentMode: .fill)
         .frame(height: isIpad ? 200 : 150)
         .clipShape(RoundedRectangle(cornerRadius: 8))

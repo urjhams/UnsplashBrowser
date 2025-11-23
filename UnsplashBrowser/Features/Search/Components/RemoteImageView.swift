@@ -6,10 +6,17 @@ import SwiftUI
 struct RemoteImageView: View {
   let url: URL
   let imageLoader: ImageLoader
+  let placeholderColor: Color?
   
   @State private var image: UIImage?
   @State private var isLoading = false
   @State private var error: Error?
+  
+  init(url: URL, imageLoader: ImageLoader, placeholderColor: Color? = nil) {
+    self.url = url
+    self.imageLoader = imageLoader
+    self.placeholderColor = placeholderColor
+  }
   
   var body: some View {
     Group {
@@ -18,8 +25,10 @@ struct RemoteImageView: View {
           .resizable()
           .aspectRatio(contentMode: .fill)
       } else if isLoading {
-        ProgressView()
-          .frame(maxWidth: .infinity, maxHeight: .infinity)
+        (placeholderColor ?? Color.gray.opacity(0.2))
+          .overlay {
+            ProgressView()
+          }
       } else if error != nil {
         Image(systemName: "photo")
           .resizable()
