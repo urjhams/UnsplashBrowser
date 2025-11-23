@@ -12,6 +12,10 @@ private struct FavoriteAuthorsStoreKey: EnvironmentKey {
   static let defaultValue: FavoriteAuthorsStore? = nil
 }
 
+private struct ImageLoaderKey: EnvironmentKey {
+  static let defaultValue: ImageLoader? = nil
+}
+
 extension EnvironmentValues {
   var resolver: Resolver {
     get {
@@ -28,6 +32,15 @@ extension EnvironmentValues {
     }
     set {
       self[FavoriteAuthorsStoreKey.self] = newValue
+    }
+  }
+  
+  var imageLoader: ImageLoader? {
+    get {
+      self[ImageLoaderKey.self]
+    }
+    set {
+      self[ImageLoaderKey.self] = newValue
     }
   }
 }

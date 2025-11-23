@@ -12,10 +12,10 @@ struct FavoritesRootView: View {
   @Environment(\.resolver) private var resolver
   @Environment(\.isRunningOniPad) private var isIpad
   @Environment(\.favoriteAuthorsStore) private var store
+  @Environment(\.imageLoader) private var imageLoader
   
   @State private var selectedAuthor: FavoriteAuthor?
   @State private var columnVisibility: NavigationSplitViewVisibility = .automatic
-  @State private var imageLoader: ImageLoader?
   
   // MARK: - Body
   
@@ -35,11 +35,6 @@ struct FavoritesRootView: View {
         )
       }
     }
-    .task {
-      if imageLoader == nil {
-        imageLoader = resolver.resolve(ImageLoader.self)
-      }
-    }
   }
   
   // MARK: - View Components
@@ -49,7 +44,6 @@ struct FavoritesRootView: View {
     NavigationSplitView(columnVisibility: $columnVisibility) {
       FavoriteAuthorsView(
         store: store,
-        imageLoader: imageLoader,
         selectedAuthor: $selectedAuthor
       )
       .navigationTitle("Favorite Authors")
@@ -68,7 +62,6 @@ struct FavoritesRootView: View {
     NavigationStack {
       FavoriteAuthorsView(
         store: store,
-        imageLoader: imageLoader,
         selectedAuthor: $selectedAuthor
       )
       .navigationTitle("Favorite Authors")

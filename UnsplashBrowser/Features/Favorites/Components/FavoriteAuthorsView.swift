@@ -10,8 +10,8 @@ struct FavoriteAuthorsView: View {
   // MARK: - Properties
   
   let store: FavoriteAuthorsStore
-  let imageLoader: ImageLoader?
   
+  @Environment(\.imageLoader) private var imageLoader
   @Binding var selectedAuthor: FavoriteAuthor?
   
   // MARK: - Body
@@ -19,7 +19,7 @@ struct FavoriteAuthorsView: View {
   var body: some View {
     List(selection: $selectedAuthor) {
       ForEach(store.favorites) { author in
-        AuthorRowView(author: author, imageLoader: imageLoader)
+        AuthorRowView(author: author)
           .tag(author)
       }
       .onDelete(perform: deleteFavorites)
@@ -65,7 +65,8 @@ struct FavoriteAuthorsView: View {
 /// Row view for displaying a single author in the list
 private struct AuthorRowView: View {
   let author: FavoriteAuthor
-  let imageLoader: ImageLoader?
+  
+  @Environment(\.imageLoader) private var imageLoader
   
   private enum Layout {
     static let imageSize: CGFloat = 44
@@ -91,8 +92,8 @@ private struct AuthorRowView: View {
   /// Author profile image with fallback
   @ViewBuilder
   private var authorImage: some View {
-    if let imageLoader, let imageURL = author.userImage, let url = URL(string: imageURL) {
-      RemoteImageView(url: url, imageLoader: imageLoader)
+    if let imageURL = author.userImage, let url = URL(string: imageURL) {
+      RemoteImageView(url: url)
         .frame(width: Layout.imageSize, height: Layout.imageSize)
         .clipShape(Circle())
     } else {

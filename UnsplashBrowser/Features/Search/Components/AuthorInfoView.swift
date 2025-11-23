@@ -9,9 +9,10 @@ struct AuthorInfoView: View {
   // MARK: - Properties
 
   let author: PhotoUser
-  let imageLoader: ImageLoader
   let isFavorite: Bool
   let onToggleFavorite: () -> Void
+  
+  @Environment(\.imageLoader) private var imageLoader
 
   // MARK: - Constants
 
@@ -38,7 +39,7 @@ struct AuthorInfoView: View {
   private var authorProfileImage: some View {
     Group {
       if let userImageURL = URL(string: author.profileImages.large) {
-        RemoteImageView(url: userImageURL, imageLoader: imageLoader)
+        RemoteImageView(url: userImageURL)
           .frame(width: Layout.profileImageSize, height: Layout.profileImageSize)
           .clipShape(Circle())
       }

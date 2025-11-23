@@ -13,6 +13,7 @@ struct UnsplashBrowserApp: App {
 
   let resolver = AppDIContainer.build()
   @State private var favoriteAuthorsStore: FavoriteAuthorsStore?
+  @State private var imageLoader: ImageLoader?
 
   var body: some Scene {
     WindowGroup {
@@ -33,9 +34,13 @@ struct UnsplashBrowserApp: App {
       .environment(\.resolver, resolver)
       .environment(\.isRunningOniPad, UIDevice.current.userInterfaceIdiom == .pad)
       .environment(\.favoriteAuthorsStore, favoriteAuthorsStore)
+      .environment(\.imageLoader, imageLoader)
       .task {
         if favoriteAuthorsStore == nil {
           favoriteAuthorsStore = resolver.resolve(FavoriteAuthorsStore.self)
+        }
+        if imageLoader == nil {
+          imageLoader = resolver.resolve(ImageLoader.self)
         }
       }
     }

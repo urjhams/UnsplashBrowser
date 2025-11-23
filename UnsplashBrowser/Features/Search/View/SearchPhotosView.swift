@@ -7,11 +7,11 @@ import Swinject
 struct SearchPhotosView: View {
   @Environment(\.resolver) private var resolver
   @Environment(\.isRunningOniPad) private var isIpad
+  @Environment(\.imageLoader) private var imageLoader
   
   @State private var viewModel: SearchPhotosViewModel?
   @State private var searchText = ""
   @State private var searchTask: Task<Void, Never>?
-  @State private var imageLoader: ImageLoader?
   @Namespace private var detailNamespace
   
   private var columns: [GridItem] {
@@ -45,9 +45,6 @@ struct SearchPhotosView: View {
       .task {
         if viewModel == nil, let apiClient = resolver.resolve(UnsplashAPIClient.self) {
           viewModel = SearchPhotosViewModel(apiClient: apiClient)
-        }
-        if imageLoader == nil {
-          imageLoader = resolver.resolve(ImageLoader.self)
         }
       }
     }
@@ -109,10 +106,8 @@ extension SearchPhotosView {
       }
     }
     .navigationDestination(for: UnsplashPhoto.self) { photo in
-      if let imageLoader {
-        PhotoDetailView(photo: photo, imageLoader: imageLoader)
-          .navigationTransition(.zoom(sourceID: photo.id, in: detailNamespace))
-      }
+      PhotoDetailView(photo: photo)
+        .navigationTransition(.zoom(sourceID: photo.id, in: detailNamespace))
     }
   }
   
@@ -148,7 +143,7 @@ extension SearchPhotosView {
     thumbURL: URL, size: CGFloat
   ) -> some View {
     let color = photo.color.map(Color.init(hex:))
-    RemoteImageView(url: thumbURL, imageLoader: loader, placeholderColor: color)
+    RemoteImageView(url: thumbURL, placeholderColor: color)
       .aspectRatio(1, contentMode: .fill)
       .frame(width: size, height: size)
       .clipShape(RoundedRectangle(cornerRadius: 8))

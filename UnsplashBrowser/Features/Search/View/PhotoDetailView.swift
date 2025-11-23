@@ -11,12 +11,12 @@ struct PhotoDetailView: View {
   // MARK: - Properties
 
   let photo: UnsplashPhoto
-  let imageLoader: ImageLoader
 
   @Environment(\.resolver) private var resolver
   @Environment(\.isRunningOniPad) private var isIpad
   @Environment(\.dismiss) private var dismiss
   @Environment(\.favoriteAuthorsStore) private var favoriteStore
+  @Environment(\.imageLoader) private var imageLoader
 
   @State private var isFavorite = false
 
@@ -60,7 +60,7 @@ extension PhotoDetailView {
   private func photoImageView(width: CGFloat) -> some View {
     Group {
       if let url = URL(string: photo.urls.regular) {
-        RemoteImageView(url: url, imageLoader: imageLoader)
+        RemoteImageView(url: url)
           .frame(width: width)
           .frame(height: calculateImageHeight(for: width))
           .clipShape(
@@ -77,7 +77,6 @@ extension PhotoDetailView {
     VStack(alignment: .leading, spacing: Layout.authorSpacing) {
       AuthorInfoView(
         author: photo.user,
-        imageLoader: imageLoader,
         isFavorite: isFavorite,
         onToggleFavorite: toggleFavorite
       )

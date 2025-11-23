@@ -5,16 +5,15 @@ import SwiftUI
 
 struct RemoteImageView: View {
   let url: URL
-  let imageLoader: ImageLoader
   let placeholderColor: Color?
   
+  @Environment(\.imageLoader) private var imageLoader
   @State private var image: UIImage?
   @State private var isLoading = false
   @State private var error: Error?
   
-  init(url: URL, imageLoader: ImageLoader, placeholderColor: Color? = nil) {
+  init(url: URL, placeholderColor: Color? = nil) {
     self.url = url
-    self.imageLoader = imageLoader
     self.placeholderColor = placeholderColor
   }
   
@@ -46,6 +45,7 @@ struct RemoteImageView: View {
   }
   
   private func loadImage() async {
+    guard let imageLoader else { return }
     isLoading = true
     error = nil
     
