@@ -128,6 +128,7 @@ extension SearchPhotosView {
       photoCellImageView(of: photo, loader: loader, thumbURL: thumb, size: size)
         .matchedTransitionSource(id: photo.id, in: detailNamespace)
     }
+    .transition(.opacity)
     .onAppear {
       if photo.id == viewModel.photos.last?.id {
         Task {

@@ -133,7 +133,7 @@ class SearchPhotosViewModel {
         let response = try await apiClient.searchPhotos(
           query: searchQuery,
           page: currentPage,
-          perPage: 20
+          perPage: 30
         )
         
         // Filter duplicates in one pass using Set.insert
