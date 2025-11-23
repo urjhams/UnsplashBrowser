@@ -14,8 +14,9 @@ struct UnsplashBrowserApp: App {
 
   var body: some Scene {
     WindowGroup {
-      ContentView()
+      SearchPhotosView()
         .environment(\.resolver, resolver)
+        .environment(\.isRunningOniPad, UIDevice.current.userInterfaceIdiom == .pad)
     }
   }
 }
