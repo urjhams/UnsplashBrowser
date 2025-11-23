@@ -7,7 +7,6 @@ import WebKit
 /// View displaying an author's Unsplash profile in a web view.
 /// Provides navigation controls and share functionality.
 struct WebProfileView: View {
-  // MARK: - Properties
 
   let author: FavoriteAuthor
 
