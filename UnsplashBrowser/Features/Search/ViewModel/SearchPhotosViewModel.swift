@@ -32,7 +32,11 @@ class SearchPhotosViewModel {
     errorMessage = nil
 
     do {
-      let response = try await apiClient.searchPhotos(query: query, page: currentPage, perPage: 20)
+      let response = try await apiClient.searchPhotos(
+        query: query,
+        page: currentPage,
+        perPage: 20
+      )
       photos = response.results
       hasMorePages = currentPage < response.totalPages
     } catch {
@@ -44,7 +48,9 @@ class SearchPhotosViewModel {
   }
 
   func loadMore() async {
-    guard !isLoading && hasMorePages && !searchQuery.isEmpty else { return }
+    guard !isLoading && hasMorePages && !searchQuery.isEmpty else {
+      return
+    }
 
     isLoading = true
     currentPage += 1
