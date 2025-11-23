@@ -113,7 +113,7 @@
       │       │
       │       └─ WebProfileView.swift
       │             • SwiftUI VIEW
-      │             • Uses SwiftUI WebView (WebPage)
+      │             • Uses WKWebView (SwiftUI WebView's WebPage is only available from iOS 26)
       │             • Provides back/forward/refresh/share tools
       │
       │
