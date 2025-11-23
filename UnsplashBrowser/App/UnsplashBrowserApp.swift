@@ -14,9 +14,19 @@ struct UnsplashBrowserApp: App {
 
   var body: some Scene {
     WindowGroup {
-      SearchPhotosView()
-        .environment(\.resolver, resolver)
-        .environment(\.isRunningOniPad, UIDevice.current.userInterfaceIdiom == .pad)
+      TabView {
+        SearchPhotosView()
+          .tabItem {
+            Label("Search Photos", systemImage: "magnifyingglass.circle")
+          }
+        
+        Text("Favorites")
+          .tabItem {
+            Label("Favorites Author", systemImage: "heart.circle")
+          }
+      }
+      .environment(\.resolver, resolver)
+      .environment(\.isRunningOniPad, UIDevice.current.userInterfaceIdiom == .pad)
     }
   }
 }

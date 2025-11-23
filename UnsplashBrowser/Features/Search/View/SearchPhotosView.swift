@@ -29,7 +29,7 @@ struct SearchPhotosView: View {
           if let viewModel {
             contentView(viewModel: viewModel, geometry: geometry)
           } else {
-            ProgressView()
+            EmptyView()
           }
         }
       }

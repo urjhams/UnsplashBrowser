@@ -11,7 +11,6 @@ struct PhotoDetailView: View {
   @Environment(\.resolver) private var resolver
   @Environment(\.isRunningOniPad) private var isIpad
   @Environment(\.dismiss) private var dismiss
-  
 
   @State private var favoriteStore: FavoriteAuthorsStore?
 
@@ -30,7 +29,7 @@ struct PhotoDetailView: View {
               .frame(height: calculateImageHeight(for: geometry.size.width))
               .clipShape(RoundedRectangle(cornerRadius: isIpad ? 12 : 8))
           }
-         
+
           // Metadata section
           VStack(alignment: .leading, spacing: 12) {
             // Author info
@@ -76,29 +75,14 @@ struct PhotoDetailView: View {
               if let createdDate = formatDate(photo.createdAt) {
                 MetadataRow(label: "Created", value: createdDate)
               }
-              if let color = photo.color {
-                HStack {
-                  Text("Color")
-                    .font(.subheadline)
-                    .foregroundStyle(.secondary)
-                  Spacer()
-                  RoundedRectangle(cornerRadius: 4)
-                    .fill(Color(hex: color))
-                    .frame(width: 30, height: 30)
-                    .overlay(
-                      RoundedRectangle(cornerRadius: 4)
-                        .stroke(Color.primary.opacity(0.2), lineWidth: 1)
-                    )
-                }
-              }
             }
           }
           .padding(.horizontal)
           .padding(.bottom)
         }
       }
+      .ignoresSafeArea(edges: [.top])
     }
-    .navigationTitle("Photo Details")
     .navigationBarTitleDisplayMode(.inline)
     .task {
       if favoriteStore == nil {
@@ -130,7 +114,7 @@ struct PhotoDetailView: View {
 
 // MARK: - Helper Views
 
-struct MetadataRow: View {
+fileprivate struct MetadataRow: View {
   let label: String
   let value: String
 
@@ -139,7 +123,6 @@ struct MetadataRow: View {
       Text(label)
         .font(.subheadline)
         .foregroundStyle(.secondary)
-      Spacer()
       Text(value)
         .font(.subheadline)
     }
