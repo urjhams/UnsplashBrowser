@@ -3,34 +3,60 @@
 
 import Foundation
 
+/// ViewModel managing photo search functionality with pagination support.
+/// Handles API calls, duplicate filtering, and loading states.
 @MainActor
 @Observable
 class SearchPhotosViewModel {
+  // Dependencies
   private let apiClient: UnsplashAPIClient
-
+  
+  // MARK: - Public Properties
+  
+  /// Array of loaded photos from search results
   var photos: [UnsplashPhoto] = []
+  
+  /// Indicates whether an API request is in progress
   var isLoading = false
+  
+  /// Optional message to display (errors or empty states)
   var message: String?
+  
+  /// Current search query string
   var searchQuery = ""
+  
+  // MARK: - Private Properties
+  
+  /// Current page number for pagination
   private var currentPage = 1
+  
+  /// Indicates if more pages are available to load
   private var hasMorePages = true
+  
+  /// Task reference for managing concurrent load operations
   private var loadTask: Task<Void, Never>?
+  
+  /// Set tracking all loaded photo IDs to prevent duplicates
   private var loadedPhotoIDs = Set<String>()
-
+  
   init(apiClient: UnsplashAPIClient) {
     self.apiClient = apiClient
   }
   
+  // MARK: - Public Methods
+  
+  /// Calculates the index of the last row in a grid layout.
+  /// - Parameter photoPerRow: Number of photos displayed per row
+  /// - Returns: Zero-based index of the last row
   func lastRowIndex(_ photoPerRow: Int) -> Int {
     photos.count > photoPerRow ? photoPerRow - photoPerRow : photos.count - 1
   }
-
-  func search(query: String) async {
-    guard !query.isEmpty else {
-      photos = []
-      return
-    }
-
+  
+  // MARK: - Private Methods
+  
+  /// Resets search state and prepares for a new search operation.
+  /// - Parameter query: The search query string to initialize with
+  private func resetSearchState(query: String) {
     loadTask?.cancel()
     loadTask = nil
     searchQuery = query
@@ -39,6 +65,19 @@ class SearchPhotosViewModel {
     isLoading = true
     message = "Searching for \"\(query)\"..."
     loadedPhotoIDs.removeAll()
+  }
+
+  /// Performs a new search with the given query string.
+  /// Resets pagination state and loads the first page of results.
+  /// Filters out duplicate photos based on their IDs.
+  /// - Parameter query: The search term to query for photos
+  func search(query: String) async {
+    guard !query.isEmpty else {
+      photos = []
+      return
+    }
+
+    resetSearchState(query: query)
 
     do {
       let response = try await apiClient.searchPhotos(
@@ -47,7 +86,7 @@ class SearchPhotosViewModel {
         perPage: 30
       )
       
-      // Filter duplicates and build both arrays efficiently in one pass
+      // Filter duplicates and build array efficiently in one pass
       var uniquePhotos: [UnsplashPhoto] = []
       uniquePhotos.reserveCapacity(response.results.count)
       
@@ -73,6 +112,9 @@ class SearchPhotosViewModel {
     isLoading = false
   }
 
+  /// Loads the next page of search results and appends unique photos.
+  /// Prevents concurrent load operations and checks for availability of more pages.
+  /// Only adds photos that haven't been loaded before (based on ID).
   func loadMore() async {
     guard !isLoading && hasMorePages && !searchQuery.isEmpty else {
       return
@@ -104,7 +146,7 @@ class SearchPhotosViewModel {
         hasMorePages = currentPage < response.totalPages
       } catch {
         message = error.localizedDescription
-        currentPage -= 1
+        currentPage -= 1 // Rollback page increment on error
       }
 
       isLoading = false
