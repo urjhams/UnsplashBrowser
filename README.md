@@ -64,7 +64,7 @@
       │   └─ Favorites/
       │       └─ FavoriteAuthorsStore.swift
       │             • @Observable CLASS
-      │             • Uses @AppStorage to persist favorite authors
+      │             • Uses UserDefaults to persist favorite authors
       │             • Stores array of FavoriteAuthor (Codable)
       │             • Provides toggleFavorite(), isFavorite()
       │

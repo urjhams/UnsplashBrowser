@@ -46,7 +46,7 @@ struct FavoritesRootView: View {
         store: store,
         selectedAuthor: $selectedAuthor
       )
-      .navigationTitle("Favorite Authors")
+      .navigationTitle("Favorite")
     } detail: {
       if let selectedAuthor {
         WebProfileView(author: selectedAuthor)
@@ -64,7 +64,7 @@ struct FavoritesRootView: View {
         store: store,
         selectedAuthor: $selectedAuthor
       )
-      .navigationTitle("Favorite Authors")
+      .navigationTitle("Favorite")
       .navigationDestination(item: $selectedAuthor) { author in
         WebProfileView(author: author)
       }
