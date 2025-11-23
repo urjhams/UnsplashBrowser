@@ -35,7 +35,7 @@ class SearchPhotosViewModel {
       let response = try await apiClient.searchPhotos(
         query: query,
         page: currentPage,
-        perPage: 20
+        perPage: 30
       )
       photos = response.results
       hasMorePages = currentPage < response.totalPages

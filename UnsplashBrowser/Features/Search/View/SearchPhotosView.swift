@@ -7,28 +7,30 @@ import Swinject
 struct SearchPhotosView: View {
   @Environment(\.resolver) private var resolver
   @Environment(\.isRunningOniPad) private var isIpad
-
+  
   @State private var viewModel: SearchPhotosViewModel?
   @State private var searchText = ""
   @State private var searchTask: Task<Void, Never>?
   @Namespace private var detailNamespace
-
+  
   private var imageLoader: ImageLoader? {
     resolver.resolve(ImageLoader.self)
   }
-
+  
   private var columns: [GridItem] {
-    let columnCount = isIpad ? 4 : 3
+    let columnCount = isIpad ? 5 : 3
     return Array(repeating: GridItem(.flexible()), count: columnCount)
   }
-
+  
   var body: some View {
     NavigationStack {
-      Group {
-        if let viewModel {
-          contentView(viewModel: viewModel)
-        } else {
-          ProgressView()
+      GeometryReader { geometry in
+        Group {
+          if let viewModel {
+            contentView(viewModel: viewModel, geometry: geometry)
+          } else {
+            ProgressView()
+          }
         }
       }
       .navigationTitle("Search Photos")
@@ -37,7 +39,9 @@ struct SearchPhotosView: View {
         searchTask?.cancel()
         searchTask = Task {
           try? await Task.sleep(nanoseconds: 500_000_000)  // 0.5 second debounce
-          guard !Task.isCancelled else { return }
+          guard !Task.isCancelled else {
+            return
+          }
           await viewModel?.search(query: newValue)
         }
       }
@@ -48,9 +52,11 @@ struct SearchPhotosView: View {
       }
     }
   }
+}
 
+extension SearchPhotosView {
   @ViewBuilder
-  private func contentView(viewModel: SearchPhotosViewModel) -> some View {
+  private func contentView(viewModel: SearchPhotosViewModel, geometry: GeometryProxy) -> some View {
     if viewModel.photos.isEmpty {
       if searchText.isEmpty {
         emptyStateView
@@ -60,7 +66,7 @@ struct SearchPhotosView: View {
         emptyStateView
       }
     } else {
-      photosGrid(viewModel: viewModel)
+      photosGrid(viewModel: viewModel, geometry: geometry)
     }
   }
 
@@ -80,26 +86,22 @@ struct SearchPhotosView: View {
     )
   }
 
-  private func photosGrid(viewModel: SearchPhotosViewModel) -> some View {
-    ScrollView {
-      LazyVGrid(columns: columns, spacing: 8) {
+  private func photosGrid(viewModel: SearchPhotosViewModel, geometry: GeometryProxy) -> some View {
+    let columnCount = CGFloat(columns.count)
+    let spacing: CGFloat = 4
+    let totalSpacing = spacing * (columnCount + 1)
+    let availableWidth = geometry.size.width - totalSpacing
+    let cellSize = availableWidth / columnCount
+    
+    return ScrollView {
+      LazyVGrid(columns: columns, spacing: spacing) {
         ForEach(viewModel.photos) { photo in
-          if let loader = imageLoader, let thumb = URL(string: photo.urls.small) {
-            NavigationLink(value: photo) {
-              photoCell(photo: photo, loader: loader, thumbURL: thumb)
-                .matchedTransitionSource(id: photo.id, in: detailNamespace)
-            }
-            .onAppear {
-              if photo.id == viewModel.photos.last?.id {
-                Task {
-                  await viewModel.loadMore()
-                }
-              }
-            }
+          if let loader = imageLoader, let thumb = URL(string: photo.urls.thumb) {
+            photoLink(of: photo, viewModel: viewModel, loader: loader, thumb: thumb, size: cellSize)
           }
         }
       }
-      .padding()
+      .padding(spacing)
 
       if viewModel.isLoading {
         ProgressView()
@@ -110,20 +112,41 @@ struct SearchPhotosView: View {
       if let imageLoader {
         PhotoDetailView(photo: photo, imageLoader: imageLoader)
           .navigationTransition(.zoom(sourceID: photo.id, in: detailNamespace))
-          
+      }
+    }
+  }
+  
+  @ViewBuilder
+  private func photoLink(
+    of photo: UnsplashPhoto,
+    viewModel: SearchPhotosViewModel,
+    loader: any ImageLoader,
+    thumb: URL,
+    size: CGFloat
+  ) -> some View {
+    NavigationLink(value: photo) {
+      photoCellImageView(of: photo, loader: loader, thumbURL: thumb, size: size)
+        .matchedTransitionSource(id: photo.id, in: detailNamespace)
+    }
+    .onAppear {
+      if photo.id == viewModel.photos.last?.id {
+        Task {
+          await viewModel.loadMore()
+        }
       }
     }
   }
 
   @ViewBuilder
-  private func photoCell(photo: UnsplashPhoto, loader: any ImageLoader, thumbURL: URL) -> some View {
+  private func photoCellImageView(
+    of photo: UnsplashPhoto,
+    loader: any ImageLoader,
+    thumbURL: URL, size: CGFloat
+  ) -> some View {
     let color = photo.color.map { Color(hex: $0) }
-    // TODO: use GeometryReader to make correct value for .frame
     RemoteImageView(url: thumbURL, imageLoader: loader, placeholderColor: color)
       .aspectRatio(1, contentMode: .fill)
-      .frame(width: 300, height: 300)
+      .frame(width: size, height: size)
       .clipShape(RoundedRectangle(cornerRadius: 8))
   }
-
-  @Namespace private var searchNamespace
 }

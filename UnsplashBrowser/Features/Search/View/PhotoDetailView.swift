@@ -24,14 +24,13 @@ struct PhotoDetailView: View {
       ScrollView {
         VStack(alignment: .leading, spacing: 16) {
           // Main image
-          RemoteImageView(
-            url: URL(string: photo.urls.regular)!,
-            imageLoader: imageLoader
-          )
-          .frame(width: geometry.size.width)
-          .frame(height: calculateImageHeight(for: geometry.size.width))
-          .clipShape(RoundedRectangle(cornerRadius: isIpad ? 12 : 8))
-
+          if let url = URL(string: photo.urls.regular) {
+            RemoteImageView(url: url, imageLoader: imageLoader)
+              .frame(width: geometry.size.width)
+              .frame(height: calculateImageHeight(for: geometry.size.width))
+              .clipShape(RoundedRectangle(cornerRadius: isIpad ? 12 : 8))
+          }
+         
           // Metadata section
           VStack(alignment: .leading, spacing: 12) {
             // Author info
