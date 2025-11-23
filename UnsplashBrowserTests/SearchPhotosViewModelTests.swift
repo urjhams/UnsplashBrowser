@@ -35,6 +35,17 @@ actor MockUnsplashAPIClient: UnsplashAPIClient {
   }
 }
 
+extension MockUnsplashAPIClient {
+  func setMockResponse(_ response: UnsplashSearchResponse) {
+    mockResponse = response
+  }
+  
+  func setShouldThrowError(_ shouldThrow: Bool) {
+    shouldThrowError = shouldThrow
+  }
+}
+
+
 @MainActor
 struct SearchPhotosViewModelTests {
 
@@ -203,14 +214,4 @@ struct SearchPhotosViewModelTests {
     #expect(viewModel.photos.isEmpty)
   }
 
-}
-
-extension MockUnsplashAPIClient {
-  func setMockResponse(_ response: UnsplashSearchResponse) {
-    mockResponse = response
-  }
-
-  func setShouldThrowError(_ shouldThrow: Bool) {
-    shouldThrowError = shouldThrow
-  }
 }
