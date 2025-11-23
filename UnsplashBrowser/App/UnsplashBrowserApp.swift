@@ -20,13 +20,15 @@ struct UnsplashBrowserApp: App {
       TabView {
         SearchPhotosView()
           .tabItem {
-            Label("Search Photos", systemImage: "magnifyingglass.circle")
+            Label("Search", systemImage: "magnifyingglass.circle")
+              .font(.title)
           }
           .tag(0)
         
         FavoritesRootView()
           .tabItem {
             Label("Favorites", systemImage: "heart.circle")
+              .font(.title)
           }
           .tag(1)
       }

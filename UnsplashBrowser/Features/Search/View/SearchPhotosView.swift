@@ -30,7 +30,7 @@ struct SearchPhotosView: View {
           }
         }
       }
-      .navigationTitle("Search Photos")
+      .navigationTitle("Search")
       .searchable(text: $searchText, prompt: "Search for photos...")
       .onChange(of: searchText) { _, newValue in
         searchTask?.cancel()

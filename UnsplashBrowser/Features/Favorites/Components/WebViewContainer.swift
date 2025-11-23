@@ -14,6 +14,10 @@ struct WebViewContainer: UIViewRepresentable {
     let config = WKWebViewConfiguration()
     let webView = WKWebView(frame: .zero, configuration: config)
     webView.navigationDelegate = context.coordinator
+    
+    // Setup KVO observers for URL and loading changes
+    context.coordinator.setupObservers(for: webView)
+    
     webView.load(URLRequest(url: url))
 
     // Pass webView reference back to parent
@@ -32,9 +36,37 @@ struct WebViewContainer: UIViewRepresentable {
 
   final class Coordinator: NSObject, WKNavigationDelegate {
     @Bindable var state: WebViewStateModel
+    private var urlObservation: NSKeyValueObservation?
+    private var loadingObservation: NSKeyValueObservation?
 
     init(state: WebViewStateModel) {
       self.state = state
+    }
+    
+    deinit {
+      urlObservation?.invalidate()
+      loadingObservation?.invalidate()
+    }
+    
+    func setupObservers(for webView: WKWebView) {
+      // Observe URL changes (catches JavaScript navigation)
+      urlObservation = webView.observe(\.url, options: [.new]) { [weak self] webView, _ in
+        self?.updateNavigationState(for: webView)
+      }
+      
+      // Observe loading state
+      loadingObservation = webView.observe(\.isLoading, options: [.new]) { [weak self] webView, change in
+        guard let self = self else { return }
+        self.state.isLoading = change.newValue ?? false
+        if !(change.newValue ?? false) {
+          self.updateNavigationState(for: webView)
+        }
+      }
+    }
+    
+    private func updateNavigationState(for webView: WKWebView) {
+      state.canGoBack = webView.canGoBack
+      state.canGoForward = webView.canGoForward
     }
 
     func webView(_ webView: WKWebView, didStartProvisionalNavigation navigation: WKNavigation!) {
@@ -43,8 +75,7 @@ struct WebViewContainer: UIViewRepresentable {
 
     func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
       state.isLoading = false
-      state.canGoBack = webView.canGoBack
-      state.canGoForward = webView.canGoForward
+      updateNavigationState(for: webView)
     }
 
     func webView(_ webView: WKWebView, didFail navigation: WKNavigation!, withError error: Error) {

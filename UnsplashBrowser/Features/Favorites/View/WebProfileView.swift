@@ -80,10 +80,16 @@ struct WebProfileView: View {
     
     Spacer()
     
-    if let url = author.url, let shareURL = URL(string: url) {
-      ShareLink(item: shareURL) {
+    if let url = webView?.url {
+      ShareLink(item: url) {
         Image(systemName: "square.and.arrow.up")
       }
     }
+    
+//    if let url = author.url, let shareURL = URL(string: url) {
+//      ShareLink(item: shareURL) {
+//        Image(systemName: "square.and.arrow.up")
+//      }
+//    }
   }
 }
