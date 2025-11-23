@@ -88,15 +88,16 @@ struct SearchPhotosView: View {
     ScrollView {
       LazyVGrid(columns: columns, spacing: 8) {
         ForEach(viewModel.photos) { photo in
-          NavigationLink(value: photo) {
-            photoCell(photo: photo)
-              .matchedTransitionSource(id: photo.id, in: detailNamespace)
-          }
-          .buttonStyle(.plain)
-          .onAppear {
-            if photo.id == viewModel.photos.last?.id {
-              Task {
-                await viewModel.loadMore()
+          if let loader = imageLoader, let thumb = URL(string: photo.urls.small) {
+            NavigationLink(value: photo) {
+              photoCell(photo: photo, loader: loader, thumbURL: thumb)
+                .matchedTransitionSource(id: photo.id, in: detailNamespace)
+            }
+            .onAppear {
+              if photo.id == viewModel.photos.last?.id {
+                Task {
+                  await viewModel.loadMore()
+                }
               }
             }
           }
@@ -114,24 +115,18 @@ struct SearchPhotosView: View {
         PhotoDetailView(photo: photo, imageLoader: imageLoader)
           .navigationTransition(.zoom(sourceID: photo.id, in: detailNamespace))
           
-      } else {
-        EmptyView()
       }
     }
   }
 
   @ViewBuilder
-  private func photoCell(photo: UnsplashPhoto) -> some View {
+  private func photoCell(photo: UnsplashPhoto, loader: any ImageLoader, thumbURL: URL) -> some View {
     let color = photo.color.map { Color(hex: $0) }
-    if let thumbnailURL = URL(string: photo.urls.small), let imageLoader {
-      RemoteImageView(url: thumbnailURL, imageLoader: imageLoader, placeholderColor: color)
-        .aspectRatio(1, contentMode: .fill)
-        .frame(maxHeight: .infinity)
-        .clipped()
-        .clipShape(RoundedRectangle(cornerRadius: 8))
-    } else {
-      EmptyView()
-    }
+    // TODO: use GeometryReader to make correct value for .frame
+    RemoteImageView(url: thumbURL, imageLoader: loader, placeholderColor: color)
+      .aspectRatio(1, contentMode: .fill)
+      .frame(width: 300, height: 300)
+      .clipShape(RoundedRectangle(cornerRadius: 8))
   }
 
   @Namespace private var searchNamespace
