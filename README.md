@@ -1,5 +1,38 @@
 # UnsplashBrowser
 
+## Getting Started
+
+### Prerequisites
+
+- Xcode 16+ with Swift 6
+- iOS 18.0+ Simulator or Device
+- Unsplash API Access Key ([Get one here](https://unsplash.com/developers))
+
+### Setup & Run
+
+1. **Configure API Key**
+   - Open `UnsplashBrowser/Secret/Secret.swift`
+   - Replace `"ACCESS_KEY"` with your actual Unsplash API access key
+
+2. **Build & Run**
+
+   ```bash
+   # Open the project
+   open UnsplashBrowser.xcodeproj
+   
+   # Or build from command line
+   xcodebuild -scheme UnsplashBrowser -destination 'platform=iOS Simulator,name=iPhone 16'
+   ```
+
+3. **Run Tests**
+
+   ```bash
+   # Run all tests
+   xcodebuild test -scheme UnsplashBrowser -destination 'platform=iOS Simulator,name=iPhone 16'
+   
+   # Or press ⌘U in Xcode
+   ```
+
 ## Tech stack
 
 - SwiftUI
