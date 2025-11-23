@@ -105,6 +105,7 @@ extension SearchPhotosView {
           .padding()
       }
     }
+    .scrollDismissesKeyboard(.interactively)
     .navigationDestination(for: UnsplashPhoto.self) { photo in
       PhotoDetailView(photo: photo)
         .navigationTransition(.zoom(sourceID: photo.id, in: detailNamespace))
