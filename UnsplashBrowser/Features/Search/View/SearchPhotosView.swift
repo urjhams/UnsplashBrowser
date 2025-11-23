@@ -130,14 +130,17 @@ extension SearchPhotosView {
     }
     .transition(.opacity)
     .onAppear {
-      if photo.id == viewModel.photos.last?.id {
+      // Preload when reaching 10 items before the end
+      if
+        let index = viewModel.photos.firstIndex(where: { $0.id == photo.id }),
+        index >= viewModel.photos.count - 10 {
         Task {
           await viewModel.loadMore()
         }
       }
     }
   }
-
+  
   @ViewBuilder
   private func photoCellImageView(
     of photo: UnsplashPhoto,
