@@ -69,8 +69,14 @@ struct WebViewContainer: UIViewRepresentable {
     }
     
     private func updateNavigationState(for webView: WKWebView) {
-      state.canGoBack = webView.canGoBack
-      state.canGoForward = webView.canGoForward
+      // Only update if values actually changed
+      let newCanGoBack = webView.canGoBack
+      let newCanGoForward = webView.canGoForward
+      
+      if state.canGoBack != newCanGoBack || state.canGoForward != newCanGoForward {
+        state.canGoBack = newCanGoBack
+        state.canGoForward = newCanGoForward
+      }
     }
 
     func webView(_ webView: WKWebView, didStartProvisionalNavigation navigation: WKNavigation!) {
