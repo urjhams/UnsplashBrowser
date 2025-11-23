@@ -18,8 +18,8 @@ struct SearchPhotosView: View {
   }
 
   private var columns: [GridItem] {
-    let columnCount = isIpad ? 4 : 2
-    return Array(repeating: GridItem(.flexible(), spacing: 8), count: columnCount)
+    let columnCount = isIpad ? 4 : 3
+    return Array(repeating: GridItem(.flexible()), count: columnCount)
   }
 
   var body: some View {
@@ -122,14 +122,13 @@ struct SearchPhotosView: View {
 
   @ViewBuilder
   private func photoCell(photo: UnsplashPhoto) -> some View {
-    let aspectRatio = CGFloat(photo.width) / CGFloat(photo.height)
-    let placeholderColor = photo.color.map { Color(hex: $0) }
+    let color = photo.color.map { Color(hex: $0) }
     if let thumbnailURL = URL(string: photo.urls.small), let imageLoader {
-      RemoteImageView(url: thumbnailURL, imageLoader: imageLoader, placeholderColor: placeholderColor)
-        .aspectRatio(aspectRatio, contentMode: .fill)
-        .frame(height: isIpad ? 200 : 150)
+      RemoteImageView(url: thumbnailURL, imageLoader: imageLoader, placeholderColor: color)
+        .aspectRatio(1, contentMode: .fill)
+        .frame(maxHeight: .infinity)
+        .clipped()
         .clipShape(RoundedRectangle(cornerRadius: 8))
-        .navigationTransition(.zoom(sourceID: photo.id, in: searchNamespace))
     } else {
       EmptyView()
     }

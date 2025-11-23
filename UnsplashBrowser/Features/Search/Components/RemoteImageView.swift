@@ -23,12 +23,9 @@ struct RemoteImageView: View {
       if let image {
         Image(uiImage: image)
           .resizable()
-          .aspectRatio(contentMode: .fill)
+          .scaledToFill()
       } else if isLoading {
         (placeholderColor ?? Color.gray.opacity(0.2))
-          .overlay {
-            ProgressView()
-          }
       } else if error != nil {
         Image(systemName: "photo")
           .resizable()
