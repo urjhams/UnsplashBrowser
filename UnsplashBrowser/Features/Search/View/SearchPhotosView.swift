@@ -143,7 +143,7 @@ extension SearchPhotosView {
     loader: any ImageLoader,
     thumbURL: URL, size: CGFloat
   ) -> some View {
-    let color = photo.color.map { Color(hex: $0) }
+    let color = photo.color.map(Color.init(hex:))
     RemoteImageView(url: thumbURL, imageLoader: loader, placeholderColor: color)
       .aspectRatio(1, contentMode: .fill)
       .frame(width: size, height: size)

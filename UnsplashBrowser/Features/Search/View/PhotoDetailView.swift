@@ -4,7 +4,12 @@
 import SwiftUI
 import Swinject
 
+/// View displaying detailed information about a selected photo.
+/// Shows the photo image, author information, description, and metadata.
+/// Supports favoriting authors with persistent storage.
 struct PhotoDetailView: View {
+  // MARK: - Properties
+
   let photo: UnsplashPhoto
   let imageLoader: ImageLoader
 
@@ -15,98 +20,147 @@ struct PhotoDetailView: View {
   @State private var favoriteStore: FavoriteAuthorsStore?
   @State private var isFavorite = false
 
+  // MARK: - Constants
+
+  private enum Layout {
+    static let profileImageSize: CGFloat = 50
+    static let iPadCornerRadius: CGFloat = 12
+    static let defaultCornerRadius: CGFloat = 8
+    static let contentSpacing: CGFloat = 16
+    static let authorSpacing: CGFloat = 12
+    static let metadataSpacing: CGFloat = 8
+  }
+
+  // MARK: - Body
+
   var body: some View {
     GeometryReader { geometry in
       ScrollView {
-        VStack(alignment: .leading, spacing: 16) {
-          // Main image
-          if let url = URL(string: photo.urls.regular) {
-            RemoteImageView(url: url, imageLoader: imageLoader)
-              .frame(width: geometry.size.width)
-              .frame(height: calculateImageHeight(for: geometry.size.width))
-              .clipShape(RoundedRectangle(cornerRadius: isIpad ? 12 : 8))
-          }
+        VStack(alignment: .leading, spacing: Layout.contentSpacing) {
+          photoImageView(width: geometry.size.width)
 
-          // Metadata section
-          VStack(alignment: .leading, spacing: 12) {
-            // Author info
-            HStack(spacing: 12) {
-              if let userImageURL = URL(string: photo.user.profileImages.large) {
-                RemoteImageView(url: userImageURL, imageLoader: imageLoader)
-                  .frame(width: 50, height: 50)
-                  .clipShape(Circle())
-              }
-
-              VStack(alignment: .leading, spacing: 4) {
-                Text(photo.user.name)
-                  .font(.headline)
-                Text("@\(photo.user.username)")
-                  .font(.subheadline)
-                  .foregroundStyle(.secondary)
-              }
-
-              Spacer()
-
-              Button {
-                toggleFavorite()
-              } label: {
-                Image(systemName: isFavorite ? "heart.fill" : "heart")
-                  .font(.title2)
-                  .foregroundStyle(isFavorite ? .red : .primary)
-                  .contentTransition(.symbolEffect(.replace))
-              }
-            }
-
-            Divider()
-
-            // Photo description
-            if let description = photo.description {
-              Text(description)
-                .font(.body)
-            }
-
-            // Photo metadata
-            VStack(alignment: .leading, spacing: 8) {
-              MetadataRow(label: "Dimensions", value: "\(photo.width) × \(photo.height)")
-              MetadataRow(label: "Likes", value: "\(photo.likes)")
-              if let createdDate = formatDate(photo.createdAt) {
-                MetadataRow(label: "Created", value: createdDate)
-              }
-            }
-          }
-          .padding(.horizontal)
-          .padding(.bottom)
+          metadataSection
+            .padding(.horizontal)
+            .padding(.bottom)
         }
       }
       .ignoresSafeArea(edges: [.top])
     }
     .navigationBarTitleDisplayMode(.inline)
     .task {
-      if favoriteStore == nil {
-        favoriteStore = resolver.resolve(FavoriteAuthorsStore.self)
-        updateFavoriteStatus()
+      await initializeFavoriteStore()
+    }
+  }
+}
+
+extension PhotoDetailView {
+  // MARK: - View Components
+
+  /// Main photo image view with dynamic height based on aspect ratio
+  private func photoImageView(width: CGFloat) -> some View {
+    Group {
+      if let url = URL(string: photo.urls.regular) {
+        RemoteImageView(url: url, imageLoader: imageLoader)
+          .frame(width: width)
+          .frame(height: calculateImageHeight(for: width))
+          .clipShape(
+            RoundedRectangle(
+              cornerRadius: isIpad ? Layout.iPadCornerRadius : Layout.defaultCornerRadius
+            )
+          )
       }
     }
   }
 
+  /// Complete metadata section including author info, description, and stats
+  private var metadataSection: some View {
+    VStack(alignment: .leading, spacing: Layout.authorSpacing) {
+      AuthorInfoView(
+        author: photo.user,
+        imageLoader: imageLoader,
+        isFavorite: isFavorite,
+        onToggleFavorite: toggleFavorite
+      )
+      
+      Divider()
+      
+      photoDescriptionView
+      
+      photoMetadataView
+    }
+  }
+
+  /// Photo description text if available
+  @ViewBuilder
+  private var photoDescriptionView: some View {
+    if let description = photo.description {
+      Text(description)
+        .font(.body)
+    }
+  }
+
+  /// Photo metadata (dimensions, likes, creation date)
+  private var photoMetadataView: some View {
+    VStack(alignment: .leading, spacing: Layout.metadataSpacing) {
+      MetadataRow(
+        label: "Dimensions",
+        value: "\(photo.width) × \(photo.height)"
+      )
+      MetadataRow(
+        label: "Likes",
+        value: "\(photo.likes)"
+      )
+      if let createdDate = formatDate(photo.createdAt) {
+        MetadataRow(
+          label: "Created",
+          value: createdDate
+        )
+      }
+    }
+  }
+
+}
+
+extension PhotoDetailView {
+  // MARK: - Private Methods
+
+  /// Initializes the favorite store and updates favorite status
+  private func initializeFavoriteStore() async {
+    guard favoriteStore == nil else { return }
+    favoriteStore = resolver.resolve(FavoriteAuthorsStore.self)
+    updateFavoriteStatus()
+  }
+
+  /// Calculates the appropriate image height based on photo aspect ratio
+  /// - Parameter width: The desired width for the image
+  /// - Returns: The calculated height maintaining the original aspect ratio
   private func calculateImageHeight(for width: CGFloat) -> CGFloat {
     let aspectRatio = CGFloat(photo.height) / CGFloat(photo.width)
     return width * aspectRatio
   }
 
+  /// Updates the favorite status from the store
   private func updateFavoriteStatus() {
     isFavorite = favoriteStore?.isFavorite(photo.user.id) ?? false
   }
 
+  /// Toggles the favorite status for the current photo's author
   private func toggleFavorite() {
-    let author = photo.user.toFavoriteAuthor()
-    favoriteStore?.toggleFavorite(author)
-    updateFavoriteStatus()
+    withAnimation(.default.speed(1.5)) {
+      let author = photo.user.toFavoriteAuthor()
+      favoriteStore?.toggleFavorite(author)
+      updateFavoriteStatus()
+    }
   }
 
+  /// Formats an ISO8601 date string to a user-friendly display format
+  /// - Parameter dateString: ISO8601 formatted date string
+  /// - Returns: Formatted date string or nil if parsing fails
   private func formatDate(_ dateString: String) -> String? {
     let isoFormatter = ISO8601DateFormatter()
-    guard let date = isoFormatter.date(from: dateString) else { return nil }
+    guard let date = isoFormatter.date(from: dateString) else {
+      return nil
+    }
 
     let displayFormatter = DateFormatter()
     displayFormatter.dateStyle = .medium
@@ -117,7 +171,7 @@ struct PhotoDetailView: View {
 
 // MARK: - Helper Views
 
-fileprivate struct MetadataRow: View {
+private struct MetadataRow: View {
   let label: String
   let value: String
 
