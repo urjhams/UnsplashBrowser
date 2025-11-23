@@ -46,9 +46,19 @@ class SearchPhotosViewModel {
         page: currentPage,
         perPage: 30
       )
-      photos = response.results
+      
+      // Filter duplicates and build both arrays efficiently in one pass
+      var uniquePhotos: [UnsplashPhoto] = []
+      uniquePhotos.reserveCapacity(response.results.count)
+      
+      for photo in response.results {
+        if loadedPhotoIDs.insert(photo.id).inserted {
+          uniquePhotos.append(photo)
+        }
+      }
+      
+      photos = uniquePhotos
       hasMorePages = currentPage < response.totalPages
-      loadedPhotoIDs = Set(photos.map { $0.id })
       
       if photos.isEmpty {
         message = "No photos found for \"\(query)\""
@@ -84,10 +94,12 @@ class SearchPhotosViewModel {
           perPage: 20
         )
         
-        // Filter out duplicates before appending
-        let newPhotos = response.results.filter { !loadedPhotoIDs.contains($0.id) }
-        photos.append(contentsOf: newPhotos)
-        loadedPhotoIDs.formUnion(newPhotos.map { $0.id })
+        // Filter duplicates in one pass using Set.insert
+        for photo in response.results {
+          if loadedPhotoIDs.insert(photo.id).inserted {
+            photos.append(photo)
+          }
+        }
         
         hasMorePages = currentPage < response.totalPages
       } catch {
