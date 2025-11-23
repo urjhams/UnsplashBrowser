@@ -3,7 +3,7 @@
 
 import Foundation
 
-struct PhotoURLs: Codable {
+struct PhotoURLs: Codable, Hashable {
   let raw: String
   let full: String
   let regular: String

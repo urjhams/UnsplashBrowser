@@ -3,17 +3,17 @@
 
 import Foundation
 
-struct UserImages: Codable {
+struct UserImages: Codable, Hashable {
   let small: String
   let medium: String
   let large: String
 }
 
-struct UserLinks: Codable {
+struct UserLinks: Codable, Hashable {
   let html: String
 }
 
-struct PhotoUser: Codable {
+struct PhotoUser: Codable, Hashable {
   let id: String
   let username: String
   let name: String
