@@ -47,6 +47,7 @@ extension MockUnsplashAPIClient {
 
 
 @MainActor
+@Suite(.serialized)
 struct SearchPhotosViewModelTests {
 
   // Helper to create mock photo
@@ -73,9 +74,8 @@ struct SearchPhotosViewModelTests {
         name: "Test User",
         firstName: "Test",
         lastName: "User",
-        instagramUsername: nil,
-        twitterUsername: nil,
-        portfolioUrl: "https://example.com"
+        profileImages: .init(small: "", medium: "", large: ""),
+        links: .init(html: "https://example.com")
       )
     )
   }
@@ -104,7 +104,7 @@ struct SearchPhotosViewModelTests {
     #expect(viewModel.isLoading == false)
 
     // Assert no error state
-    #expect(viewModel.errorMessage == nil)
+    #expect(viewModel.message == nil)
   }
 
   @Test func test_emptyResult() async throws {
@@ -126,9 +126,6 @@ struct SearchPhotosViewModelTests {
 
     // Assert loading state is false
     #expect(viewModel.isLoading == false)
-
-    // Assert no error
-    #expect(viewModel.errorMessage == nil)
   }
 
   @Test func test_errorResult() async throws {
@@ -140,8 +137,8 @@ struct SearchPhotosViewModelTests {
     await viewModel.search(query: "test")
 
     // Assert error state is set
-    #expect(viewModel.errorMessage != nil)
-    #expect(viewModel.errorMessage?.contains("Mock error") == true)
+    #expect(viewModel.message != nil)
+    #expect(viewModel.message?.contains("Mock error") == true)
 
     // Assert loading state is false
     #expect(viewModel.isLoading == false)

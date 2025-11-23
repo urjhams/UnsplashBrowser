@@ -3,10 +3,34 @@
 
 import Foundation
 
-/// Mock URL protocol for intercepting network requests in tests
-class MockURLProtocol: URLProtocol {
-  /// Handler to provide mock responses
-  static var requestHandler: ((URLRequest) throws -> (HTTPURLResponse, Data?))?
+/// Base protocol for creating mock URL protocol classes
+/// Each test suite should create its own subclass to avoid shared state
+class MockURLProtocolBase: URLProtocol {
+  /// Storage for request handlers, keyed by class name to avoid conflicts
+  private static var handlers: [String: (URLRequest) throws -> (HTTPURLResponse, Data?)] = [:]
+  private static let handlersLock = NSLock()
+  
+  /// Set the request handler for a specific protocol class
+  class func setHandler(_ handler: ((URLRequest) throws -> (HTTPURLResponse, Data?))?) {
+    handlersLock.lock()
+    defer { handlersLock.unlock() }
+    
+    let key = String(describing: self)
+    if let handler = handler {
+      handlers[key] = handler
+    } else {
+      handlers.removeValue(forKey: key)
+    }
+  }
+  
+  /// Get the request handler for a specific protocol class
+  class func getHandler() -> ((URLRequest) throws -> (HTTPURLResponse, Data?))? {
+    handlersLock.lock()
+    defer { handlersLock.unlock() }
+    
+    let key = String(describing: self)
+    return handlers[key]
+  }
 
   override class func canInit(with request: URLRequest) -> Bool {
     return true
@@ -17,8 +41,8 @@ class MockURLProtocol: URLProtocol {
   }
 
   override func startLoading() {
-    guard let handler = MockURLProtocol.requestHandler else {
-      fatalError("Request handler is not set")
+    guard let handler = type(of: self).getHandler() else {
+      fatalError("Request handler is not set for \(type(of: self))")
     }
 
     do {
@@ -37,3 +61,14 @@ class MockURLProtocol: URLProtocol {
 
   override func stopLoading() { }
 }
+
+// MARK: - Test Suite Specific Protocols
+
+/// Mock protocol for ImageLoaderTests
+final class ImageLoaderMockURLProtocol: MockURLProtocolBase {}
+
+/// Mock protocol for UnsplashAPIClientTests  
+final class APIClientMockURLProtocol: MockURLProtocolBase {}
+
+/// Legacy MockURLProtocol for backwards compatibility
+typealias MockURLProtocol = ImageLoaderMockURLProtocol

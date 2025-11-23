@@ -15,9 +15,12 @@ import UIKit
 struct ImageLoaderTests {
   
   // Helper to create a simple test image
+  // Using scale 1.0 to get consistent 100x100 pixel dimensions regardless of device
   private func createTestImage() -> UIImage {
     let size = CGSize(width: 100, height: 100)
-    let renderer = UIGraphicsImageRenderer(size: size)
+    let format = UIGraphicsImageRendererFormat()
+    format.scale = 1.0  // Explicit scale to get 100x100 pixels
+    let renderer = UIGraphicsImageRenderer(size: size, format: format)
     return renderer.image { context in
       UIColor.red.setFill()
       context.fill(CGRect(origin: .zero, size: size))
@@ -35,13 +38,13 @@ struct ImageLoaderTests {
     let imageData = createTestImageData()
     let testURL = URL(string: "https://example.com/test-image.jpg")!
     
-    // Configure MockURLProtocol
+    // Configure ImageLoaderMockURLProtocol
     let config = URLSessionConfiguration.ephemeral
-    config.protocolClasses = [MockURLProtocol.self]
+    config.protocolClasses = [ImageLoaderMockURLProtocol.self]
     let mockSession = URLSession(configuration: config)
     
     var requestCount = 0
-    MockURLProtocol.requestHandler = { request in
+    ImageLoaderMockURLProtocol.setHandler { request in
       requestCount += 1
       let response = HTTPURLResponse(
         url: request.url!,
@@ -71,10 +74,10 @@ struct ImageLoaderTests {
     let testURL = URL(string: "https://example.com/new-image.jpg")!
     
     let config = URLSessionConfiguration.ephemeral
-    config.protocolClasses = [MockURLProtocol.self]
+    config.protocolClasses = [ImageLoaderMockURLProtocol.self]
     let mockSession = URLSession(configuration: config)
     
-    MockURLProtocol.requestHandler = { request in
+    ImageLoaderMockURLProtocol.setHandler { request in
       let response = HTTPURLResponse(
         url: request.url!,
         statusCode: 200,
@@ -95,7 +98,7 @@ struct ImageLoaderTests {
     
     // Verify image was cached by loading again
     var secondRequestMade = false
-    MockURLProtocol.requestHandler = { request in
+    ImageLoaderMockURLProtocol.setHandler { request in
       secondRequestMade = true
       let response = HTTPURLResponse(
         url: request.url!,
@@ -115,11 +118,11 @@ struct ImageLoaderTests {
     let testURL = URL(string: "https://example.com/parallel-image.jpg")!
     
     let config = URLSessionConfiguration.ephemeral
-    config.protocolClasses = [MockURLProtocol.self]
+    config.protocolClasses = [ImageLoaderMockURLProtocol.self]
     let mockSession = URLSession(configuration: config)
     
     var requestCount = 0
-    MockURLProtocol.requestHandler = { request in
+    ImageLoaderMockURLProtocol.setHandler { request in
       requestCount += 1
       // Simulate slow network
       usleep(100_000) // 0.1 second
@@ -159,11 +162,11 @@ struct ImageLoaderTests {
     let testURL = URL(string: "https://example.com/error-image.jpg")!
     
     let config = URLSessionConfiguration.ephemeral
-    config.protocolClasses = [MockURLProtocol.self]
+    config.protocolClasses = [ImageLoaderMockURLProtocol.self]
     let mockSession = URLSession(configuration: config)
     
     // Configure to return network error
-    MockURLProtocol.requestHandler = { request in
+    ImageLoaderMockURLProtocol.setHandler { request in
       throw URLError(.notConnectedToInternet)
     }
     
@@ -185,10 +188,10 @@ struct ImageLoaderTests {
     let invalidData = "Not an image".data(using: .utf8)!
     
     let config = URLSessionConfiguration.ephemeral
-    config.protocolClasses = [MockURLProtocol.self]
+    config.protocolClasses = [ImageLoaderMockURLProtocol.self]
     let mockSession = URLSession(configuration: config)
     
-    MockURLProtocol.requestHandler = { request in
+    ImageLoaderMockURLProtocol.setHandler { request in
       let response = HTTPURLResponse(
         url: request.url!,
         statusCode: 200,
@@ -214,10 +217,10 @@ struct ImageLoaderTests {
     let imageData = createTestImageData()
     
     let config = URLSessionConfiguration.ephemeral
-    config.protocolClasses = [MockURLProtocol.self]
+    config.protocolClasses = [ImageLoaderMockURLProtocol.self]
     let mockSession = URLSession(configuration: config)
     
-    MockURLProtocol.requestHandler = { request in
+    ImageLoaderMockURLProtocol.setHandler { request in
       let response = HTTPURLResponse(
         url: request.url!,
         statusCode: 500,

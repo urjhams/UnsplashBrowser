@@ -7,6 +7,7 @@ import Testing
 @testable import UnsplashBrowser
 
 @MainActor
+@Suite(.serialized)
 struct FavoriteAuthorsStoreTests {
 
   // Helper to clear UserDefaults before each test
@@ -22,7 +23,8 @@ struct FavoriteAuthorsStoreTests {
       id: "test-1",
       username: "testuser",
       name: "Test User",
-      portfolioUrl: "https://example.com"
+      userImage: "",
+      url: "https://example.com"
     )
 
     // Assert author is not initially favorited
@@ -46,7 +48,8 @@ struct FavoriteAuthorsStoreTests {
       id: "test-2",
       username: "testuser2",
       name: "Test User 2",
-      portfolioUrl: "https://example.com/2"
+      userImage: "",
+      url: "https://example.com/2"
     )
 
     // Add author to favorites
@@ -70,13 +73,15 @@ struct FavoriteAuthorsStoreTests {
       id: "test-3",
       username: "user1",
       name: "User One",
-      portfolioUrl: "https://example.com/1"
+      userImage: "",
+      url: "https://example.com/1"
     )
     let author2 = FavoriteAuthor(
       id: "test-4",
       username: "user2",
       name: "User Two",
-      portfolioUrl: nil
+      userImage: "",
+      url: nil
     )
 
     // Create first store and add authors
@@ -107,7 +112,8 @@ struct FavoriteAuthorsStoreTests {
       id: "test-5",
       username: "testuser5",
       name: "Test User 5",
-      portfolioUrl: "https://example.com/5"
+      userImage: "",
+      url: "https://example.com/5"
     )
 
     // Assert isFavorite returns false for non-existent author

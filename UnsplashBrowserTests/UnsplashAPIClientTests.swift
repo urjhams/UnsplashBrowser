@@ -68,10 +68,10 @@ struct UnsplashAPIClientTests {
 
     // Configure MockURLProtocol
     let config = URLSessionConfiguration.ephemeral
-    config.protocolClasses = [MockURLProtocol.self]
+    config.protocolClasses = [APIClientMockURLProtocol.self]
     let mockSession = URLSession(configuration: config)
 
-    MockURLProtocol.requestHandler = { request in
+    APIClientMockURLProtocol.setHandler { request in
       let response = HTTPURLResponse(
         url: request.url!,
         statusCode: 200,
@@ -105,10 +105,10 @@ struct UnsplashAPIClientTests {
   @Test func test_badRequest() async throws {
     // Configure MockURLProtocol to return 400 status
     let config = URLSessionConfiguration.ephemeral
-    config.protocolClasses = [MockURLProtocol.self]
+    config.protocolClasses = [APIClientMockURLProtocol.self]
     let mockSession = URLSession(configuration: config)
 
-    MockURLProtocol.requestHandler = { request in
+    APIClientMockURLProtocol.setHandler { request in
       let response = HTTPURLResponse(
         url: request.url!,
         statusCode: 400,
@@ -132,10 +132,10 @@ struct UnsplashAPIClientTests {
   
   @Test func test_unauthorized() async throws {
     let config = URLSessionConfiguration.ephemeral
-    config.protocolClasses = [MockURLProtocol.self]
+    config.protocolClasses = [APIClientMockURLProtocol.self]
     let mockSession = URLSession(configuration: config)
 
-    MockURLProtocol.requestHandler = { request in
+    APIClientMockURLProtocol.setHandler { request in
       let response = HTTPURLResponse(
         url: request.url!,
         statusCode: 401,
@@ -159,10 +159,10 @@ struct UnsplashAPIClientTests {
   
   @Test func test_forbidden() async throws {
     let config = URLSessionConfiguration.ephemeral
-    config.protocolClasses = [MockURLProtocol.self]
+    config.protocolClasses = [APIClientMockURLProtocol.self]
     let mockSession = URLSession(configuration: config)
 
-    MockURLProtocol.requestHandler = { request in
+    APIClientMockURLProtocol.setHandler { request in
       let response = HTTPURLResponse(
         url: request.url!,
         statusCode: 403,
@@ -186,10 +186,10 @@ struct UnsplashAPIClientTests {
   
   @Test func test_notFound() async throws {
     let config = URLSessionConfiguration.ephemeral
-    config.protocolClasses = [MockURLProtocol.self]
+    config.protocolClasses = [APIClientMockURLProtocol.self]
     let mockSession = URLSession(configuration: config)
 
-    MockURLProtocol.requestHandler = { request in
+    APIClientMockURLProtocol.setHandler { request in
       let response = HTTPURLResponse(
         url: request.url!,
         statusCode: 404,
@@ -213,10 +213,10 @@ struct UnsplashAPIClientTests {
   
   @Test func test_serverError() async throws {
     let config = URLSessionConfiguration.ephemeral
-    config.protocolClasses = [MockURLProtocol.self]
+    config.protocolClasses = [APIClientMockURLProtocol.self]
     let mockSession = URLSession(configuration: config)
 
-    MockURLProtocol.requestHandler = { request in
+    APIClientMockURLProtocol.setHandler { request in
       let response = HTTPURLResponse(
         url: request.url!,
         statusCode: 500,
@@ -252,10 +252,10 @@ struct UnsplashAPIClientTests {
       """.data(using: .utf8)!
 
     let config = URLSessionConfiguration.ephemeral
-    config.protocolClasses = [MockURLProtocol.self]
+    config.protocolClasses = [APIClientMockURLProtocol.self]
     let mockSession = URLSession(configuration: config)
 
-    MockURLProtocol.requestHandler = { request in
+    APIClientMockURLProtocol.setHandler { request in
       let response = HTTPURLResponse(
         url: request.url!,
         statusCode: 200,
@@ -276,10 +276,10 @@ struct UnsplashAPIClientTests {
   @Test func test_rateLimit() async throws {
     // Configure MockURLProtocol to return 429 status
     let config = URLSessionConfiguration.ephemeral
-    config.protocolClasses = [MockURLProtocol.self]
+    config.protocolClasses = [APIClientMockURLProtocol.self]
     let mockSession = URLSession(configuration: config)
 
-    MockURLProtocol.requestHandler = { request in
+    APIClientMockURLProtocol.setHandler { request in
       let response = HTTPURLResponse(
         url: request.url!,
         statusCode: 429,
