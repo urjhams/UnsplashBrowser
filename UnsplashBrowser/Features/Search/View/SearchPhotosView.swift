@@ -35,6 +35,9 @@ struct SearchPhotosView: View {
       .onChange(of: searchText) { _, newValue in
         searchTask?.cancel()
         searchTask = Task {
+          defer {
+            searchTask = nil  // Clean up reference
+          }
           try? await Task.sleep(nanoseconds: 500_000_000)  // 0.5 second debounce
           guard !Task.isCancelled else {
             return
