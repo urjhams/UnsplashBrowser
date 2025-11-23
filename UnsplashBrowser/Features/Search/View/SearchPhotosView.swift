@@ -98,6 +98,10 @@ extension SearchPhotosView {
         ForEach(viewModel.photos) { photo in
           if let loader = imageLoader, let thumb = URL(string: photo.urls.thumb) {
             photoLink(of: photo, viewModel: viewModel, loader: loader, thumb: thumb, size: cellSize)
+          } else {
+            Image(systemName: "photo")
+              .resizable()
+              .frame(width: cellSize, height: cellSize)
           }
         }
       }

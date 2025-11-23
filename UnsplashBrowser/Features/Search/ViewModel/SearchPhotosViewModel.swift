@@ -18,6 +18,10 @@ class SearchPhotosViewModel {
   init(apiClient: UnsplashAPIClient) {
     self.apiClient = apiClient
   }
+  
+  func lastRowIndex(_ photoPerRow: Int) -> Int {
+    photos.count > photoPerRow ? photoPerRow - photoPerRow : photos.count - 1
+  }
 
   func search(query: String) async {
     guard !query.isEmpty else {
