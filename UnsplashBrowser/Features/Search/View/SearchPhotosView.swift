@@ -54,17 +54,18 @@ struct SearchPhotosView: View {
 extension SearchPhotosView {
   @ViewBuilder
   private func contentView(viewModel: SearchPhotosViewModel, geometry: GeometryProxy) -> some View {
-    if viewModel.photos.isEmpty {
-      if searchText.isEmpty {
-        emptyStateView
-      } else if let message = viewModel.message {
-        messageView(message: message, isError: !viewModel.isLoading)
-      } else {
-        emptyStateView
+    photosGrid(viewModel: viewModel, geometry: geometry)
+      .overlay {
+        if viewModel.photos.isEmpty {
+          if searchText.isEmpty {
+            emptyStateView
+          } else if let message = viewModel.message {
+            messageView(message: message, isError: !viewModel.isLoading)
+          } else if viewModel.isLoading {
+            ProgressView()
+          }
+        }
       }
-    } else {
-      photosGrid(viewModel: viewModel, geometry: geometry)
-    }
   }
 
   private var emptyStateView: some View {
@@ -105,7 +106,7 @@ extension SearchPhotosView {
           .padding()
       }
     }
-    .scrollDismissesKeyboard(.interactively)
+    .scrollDismissesKeyboard(.immediately)
     .navigationDestination(for: UnsplashPhoto.self) { photo in
       PhotoDetailView(photo: photo)
         .navigationTransition(.zoom(sourceID: photo.id, in: detailNamespace))
