@@ -37,9 +37,7 @@ struct RemoteImageView: View {
     }
     .task(id: url) {
       if image == nil && !isLoading {
-        Task {
-          await loadImage()
-        }
+        await loadImage()
       }
     }
   }

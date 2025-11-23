@@ -11,8 +11,8 @@ actor ImageLoaderImpl: ImageLoader {
   // NSCache is thread-safe already so it doesn't need to be isolated by actor
   nonisolated(unsafe) private let cache: NSCache<NSURL, UIImage> = {
     let cache = NSCache<NSURL, UIImage>()
-    cache.countLimit = 1000  // Maximum 1000 images
-    cache.totalCostLimit = 640 * 1024 * 1024  // 640 MB
+    cache.countLimit = 300  // Maximum 300 images
+    cache.totalCostLimit = 300 * 1024 * 1024  // 300 MB
     return cache
   }()
 
@@ -65,8 +65,9 @@ actor ImageLoaderImpl: ImageLoader {
     do {
       let image = try await task.value
 
-      // Cache the loaded image
-      cache.setObject(image, forKey: url as NSURL)
+      // Cache the loaded image with proper cost calculation
+      let cost = Int(image.size.width * image.size.height * image.scale * image.scale * 4)
+      cache.setObject(image, forKey: url as NSURL, cost: cost)
 
       // Remove task from ongoing tasks
       ongoingTasks.removeValue(forKey: url)
