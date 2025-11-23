@@ -10,7 +10,7 @@ class SearchPhotosViewModel {
 
   var photos: [UnsplashPhoto] = []
   var isLoading = false
-  var errorMessage: String?
+  var message: String?
   var searchQuery = ""
   private var currentPage = 1
   private var hasMorePages = true
@@ -29,7 +29,7 @@ class SearchPhotosViewModel {
     currentPage = 1
     hasMorePages = true
     isLoading = true
-    errorMessage = nil
+    message = "Searching for \"\(query)\"..."
 
     do {
       let response = try await apiClient.searchPhotos(
@@ -39,8 +39,14 @@ class SearchPhotosViewModel {
       )
       photos = response.results
       hasMorePages = currentPage < response.totalPages
+      
+      if photos.isEmpty {
+        message = "No photos found for \"\(query)\""
+      } else {
+        message = nil
+      }
     } catch {
-      errorMessage = error.localizedDescription
+      message = error.localizedDescription
       photos = []
     }
 
@@ -64,7 +70,7 @@ class SearchPhotosViewModel {
       photos.append(contentsOf: response.results)
       hasMorePages = currentPage < response.totalPages
     } catch {
-      errorMessage = error.localizedDescription
+      message = error.localizedDescription
       currentPage -= 1
     }
 

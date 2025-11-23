@@ -51,13 +51,13 @@ struct SearchPhotosView: View {
 
   @ViewBuilder
   private func contentView(viewModel: SearchPhotosViewModel) -> some View {
-    if viewModel.photos.isEmpty && !viewModel.isLoading {
+    if viewModel.photos.isEmpty {
       if searchText.isEmpty {
         emptyStateView
-      } else if viewModel.errorMessage != nil {
-        errorView(message: viewModel.errorMessage!)
+      } else if let message = viewModel.message {
+        messageView(message: message, isError: !viewModel.isLoading)
       } else {
-        noResultsView
+        emptyStateView
       }
     } else {
       photosGrid(viewModel: viewModel)
@@ -72,14 +72,10 @@ struct SearchPhotosView: View {
     )
   }
 
-  private var noResultsView: some View {
-    ContentUnavailableView.search(text: searchText)
-  }
-
-  private func errorView(message: String) -> some View {
+  private func messageView(message: String, isError: Bool) -> some View {
     ContentUnavailableView(
-      "Error",
-      systemImage: "exclamationmark.triangle",
+      isError ? "Error" : "Search for Photos",
+      systemImage: isError ? "exclamationmark.triangle" : "magnifyingglass",
       description: Text(message)
     )
   }
