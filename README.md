@@ -227,33 +227,3 @@
             ▼
       RemoteImageView updates UI
 ```
-
-## Test Plan
-
-```plaintext
-      Tests/
-      ├─ UnsplashAPIClientTests
-      │   ├─ test_successDecoding
-      │   ├─ test_httpError
-      │   ├─ test_decodingError
-      │   └─ test_rateLimit
-      │
-      ├─ ImageLoaderTests
-      │   ├─ test_cacheHit
-      │   ├─ test_cacheMissLoads
-      │   ├─ test_dedupesParallelRequests
-      │   └─ test_networkError
-      │
-      ├─ SearchPhotosViewModelTests
-      │   ├─ test_searchSuccess
-      │   ├─ test_emptyResult
-      │   ├─ test_errorResult
-      │   ├─ test_pagination
-      │   └─ test_debounceCancelsPrevious (optional)
-      │
-      └─ FavoriteAuthorsStoreTests
-          ├─ test_toggleAdds
-          ├─ test_toggleRemoves
-          ├─ test_persistedLoad
-          └─ test_isFavorite
-```
