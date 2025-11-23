@@ -19,11 +19,13 @@ struct UnsplashBrowserApp: App {
           .tabItem {
             Label("Search Photos", systemImage: "magnifyingglass.circle")
           }
+          .tag(0)
         
-        Text("Favorites")
+        FavoritesRootView()
           .tabItem {
-            Label("Favorites Author", systemImage: "heart.circle")
+            Label("Favorites", systemImage: "heart.circle")
           }
+          .tag(1)
       }
       .tint(.black)
       .environment(\.resolver, resolver)

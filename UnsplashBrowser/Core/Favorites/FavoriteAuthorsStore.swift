@@ -4,7 +4,7 @@
 import Foundation
 import SwiftUI
 
-struct FavoriteAuthor: Codable, Identifiable, Equatable {
+struct FavoriteAuthor: Codable, Identifiable, Hashable {
   let id: String
   let username: String
   let name: String
