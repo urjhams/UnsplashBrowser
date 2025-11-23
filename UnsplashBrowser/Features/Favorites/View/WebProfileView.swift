@@ -43,9 +43,7 @@ struct WebProfileView: View {
       }
     }
     .task {
-      withAnimation(.easeIn(duration: 0.3)) {
-        title = author.name
-      }
+      title = author.name
     }
   }
   
