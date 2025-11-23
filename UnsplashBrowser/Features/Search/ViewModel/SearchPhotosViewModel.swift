@@ -14,6 +14,8 @@ class SearchPhotosViewModel {
   var searchQuery = ""
   private var currentPage = 1
   private var hasMorePages = true
+  private var loadTask: Task<Void, Never>?
+  private var loadedPhotoIDs = Set<String>()
 
   init(apiClient: UnsplashAPIClient) {
     self.apiClient = apiClient
@@ -29,11 +31,14 @@ class SearchPhotosViewModel {
       return
     }
 
+    loadTask?.cancel()
+    loadTask = nil
     searchQuery = query
     currentPage = 1
     hasMorePages = true
     isLoading = true
     message = "Searching for \"\(query)\"..."
+    loadedPhotoIDs.removeAll()
 
     do {
       let response = try await apiClient.searchPhotos(
@@ -43,6 +48,7 @@ class SearchPhotosViewModel {
       )
       photos = response.results
       hasMorePages = currentPage < response.totalPages
+      loadedPhotoIDs = Set(photos.map { $0.id })
       
       if photos.isEmpty {
         message = "No photos found for \"\(query)\""
@@ -61,23 +67,38 @@ class SearchPhotosViewModel {
     guard !isLoading && hasMorePages && !searchQuery.isEmpty else {
       return
     }
-
-    isLoading = true
-    currentPage += 1
-
-    do {
-      let response = try await apiClient.searchPhotos(
-        query: searchQuery,
-        page: currentPage,
-        perPage: 20
-      )
-      photos.append(contentsOf: response.results)
-      hasMorePages = currentPage < response.totalPages
-    } catch {
-      message = error.localizedDescription
-      currentPage -= 1
+    
+    // Prevent concurrent load operations
+    guard loadTask == nil else {
+      return
     }
 
-    isLoading = false
+    loadTask = Task { @MainActor in
+      isLoading = true
+      currentPage += 1
+
+      do {
+        let response = try await apiClient.searchPhotos(
+          query: searchQuery,
+          page: currentPage,
+          perPage: 20
+        )
+        
+        // Filter out duplicates before appending
+        let newPhotos = response.results.filter { !loadedPhotoIDs.contains($0.id) }
+        photos.append(contentsOf: newPhotos)
+        loadedPhotoIDs.formUnion(newPhotos.map { $0.id })
+        
+        hasMorePages = currentPage < response.totalPages
+      } catch {
+        message = error.localizedDescription
+        currentPage -= 1
+      }
+
+      isLoading = false
+      loadTask = nil
+    }
+    
+    await loadTask?.value
   }
 }
