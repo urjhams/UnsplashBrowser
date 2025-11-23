@@ -5,7 +5,7 @@ import Foundation
 import UIKit
 
 actor ImageLoaderImpl: ImageLoader {
-  
+
   private let session: URLSession
 
   // NSCache is thread-safe already so it doesn't need to be isolated by actor
@@ -28,7 +28,8 @@ actor ImageLoaderImpl: ImageLoader {
       return cachedImage
     }
 
-    // Check if there's an ongoing task for this URL (deduplication)
+    // if there's an ongoing task for this URL (deduplication)
+    // then switch to that task instead to avoid duplicate.
     if let existingTask = ongoingTasks[url] {
       return try await existingTask.value
     }
@@ -36,14 +37,15 @@ actor ImageLoaderImpl: ImageLoader {
     // Create new task for loading image
     let task = Task<UIImage, Error> {
       let (data, response) = try await session.data(from: url)
-
+      
       // Validate HTTP response
-      guard let httpResponse = response as? HTTPURLResponse,
+      guard
+        let httpResponse = response as? HTTPURLResponse,
         (200...299).contains(httpResponse.statusCode)
       else {
         throw URLError(.badServerResponse)
       }
-
+      
       // Decode image from data
       guard let image = UIImage(data: data) else {
         throw NSError(
@@ -56,9 +58,10 @@ actor ImageLoaderImpl: ImageLoader {
       return image
     }
 
-    // Store task for deduplication
+    // Store in the ongoing tasks list
     ongoingTasks[url] = task
 
+    // when the task finish
     do {
       let image = try await task.value
 

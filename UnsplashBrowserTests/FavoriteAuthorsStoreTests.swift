@@ -1,9 +1,5 @@
-//
 //  FavoriteAuthorsStoreTests.swift
 //  UnsplashBrowserTests
-//
-//  Created by Quân Đinh on 22.11.25.
-//
 
 import Foundation
 import Testing
