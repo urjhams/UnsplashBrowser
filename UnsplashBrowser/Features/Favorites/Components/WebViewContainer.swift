@@ -9,6 +9,7 @@ struct WebViewContainer: UIViewRepresentable {
   let url: URL
   @Bindable var state: WebViewStateModel
   let onWebViewCreated: (WKWebView) -> Void
+  let onWebViewTitleLoaded: (String?) -> Void
 
   func makeUIView(context: Context) -> WKWebView {
     let config = WKWebViewConfiguration()
@@ -31,16 +32,18 @@ struct WebViewContainer: UIViewRepresentable {
   func updateUIView(_ uiView: WKWebView, context: Context) {}
 
   func makeCoordinator() -> Coordinator {
-    Coordinator(state: state)
+    Coordinator(state: state, onObservedTitleChange: onWebViewTitleLoaded)
   }
 
   final class Coordinator: NSObject, WKNavigationDelegate {
     @Bindable var state: WebViewStateModel
     private var urlObservation: NSKeyValueObservation?
     private var loadingObservation: NSKeyValueObservation?
+    let onObservedTitleChange: (String?) -> Void
 
-    init(state: WebViewStateModel) {
+    init(state: WebViewStateModel, onObservedTitleChange: @escaping (String?) -> Void = { _ in }) {
       self.state = state
+      self.onObservedTitleChange = onObservedTitleChange
     }
     
     deinit {
@@ -52,6 +55,7 @@ struct WebViewContainer: UIViewRepresentable {
       // Observe URL changes (catches JavaScript navigation)
       urlObservation = webView.observe(\.url, options: [.new]) { [weak self] webView, _ in
         self?.updateNavigationState(for: webView)
+        self?.onObservedTitleChange(webView.title)
       }
       
       // Observe loading state

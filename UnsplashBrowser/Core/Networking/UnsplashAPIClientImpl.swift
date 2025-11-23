@@ -16,7 +16,11 @@ actor UnsplashAPIClientImpl: UnsplashAPIClient {
     self.accessKey = accessKey
   }
 
-  func searchPhotos(query: String, page: Int = 1, perPage: Int = 20) async throws -> UnsplashSearchResponse {
+  func searchPhotos(
+    query: String,
+    page: Int = 1,
+    perPage: Int = 20
+  ) async throws -> UnsplashSearchResponse {
     // Rate limiting: ensure minimum interval between requests
     if let lastTime = lastRequestTime {
       let elapsed = Date().timeIntervalSince(lastTime)
