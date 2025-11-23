@@ -6,11 +6,13 @@
 //
 
 import SwiftUI
+import Swinject
 
 @main
 struct UnsplashBrowserApp: App {
 
   let resolver = AppDIContainer.build()
+  @State private var favoriteAuthorsStore: FavoriteAuthorsStore?
 
   var body: some Scene {
     WindowGroup {
@@ -30,6 +32,12 @@ struct UnsplashBrowserApp: App {
       .tint(.black)
       .environment(\.resolver, resolver)
       .environment(\.isRunningOniPad, UIDevice.current.userInterfaceIdiom == .pad)
+      .environment(\.favoriteAuthorsStore, favoriteAuthorsStore)
+      .task {
+        if favoriteAuthorsStore == nil {
+          favoriteAuthorsStore = resolver.resolve(FavoriteAuthorsStore.self)
+        }
+      }
     }
   }
 }

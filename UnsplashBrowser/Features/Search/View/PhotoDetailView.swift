@@ -16,8 +16,8 @@ struct PhotoDetailView: View {
   @Environment(\.resolver) private var resolver
   @Environment(\.isRunningOniPad) private var isIpad
   @Environment(\.dismiss) private var dismiss
+  @Environment(\.favoriteAuthorsStore) private var favoriteStore
 
-  @State private var favoriteStore: FavoriteAuthorsStore?
   @State private var isFavorite = false
 
   // MARK: - Constants
@@ -126,8 +126,6 @@ extension PhotoDetailView {
 
   /// Initializes the favorite store and updates favorite status
   private func initializeFavoriteStore() async {
-    guard favoriteStore == nil else { return }
-    favoriteStore = resolver.resolve(FavoriteAuthorsStore.self)
     updateFavoriteStatus()
   }
 

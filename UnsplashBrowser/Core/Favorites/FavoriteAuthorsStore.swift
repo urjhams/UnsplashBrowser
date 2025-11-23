@@ -14,34 +14,39 @@ struct FavoriteAuthor: Codable, Identifiable, Hashable {
 
 @Observable
 class FavoriteAuthorsStore {
-  @ObservationIgnored private var favoritesKey = "favoriteAuthors"
-  @ObservationIgnored private var favoritesData: Data = UserDefaults.standard.data(forKey: "favoriteAuthors") ?? Data()
-  
-  private func persistFavoritesData() {
-    UserDefaults.standard.set(favoritesData, forKey: favoritesKey)
-  }
+  @ObservationIgnored private let favoritesKey = "favoriteAuthors"
   
   var favorites: [FavoriteAuthor] {
-    get {
-      guard !favoritesData.isEmpty else {
-        return []
-      }
-      do {
-        let decoder = JSONDecoder()
-        return try decoder.decode([FavoriteAuthor].self, from: favoritesData)
-      } catch {
-        print("Failed to decode favorites: \(error)")
-        return []
-      }
+    didSet {
+      saveFavorites()
     }
-    set {
-      do {
-        let encoder = JSONEncoder()
-        favoritesData = try encoder.encode(newValue)
-        persistFavoritesData()
-      } catch {
-        print("Failed to encode favorites: \(error)")
-      }
+  }
+  
+  init() {
+    self.favorites = Self.loadFavorites()
+  }
+  
+  private static func loadFavorites() -> [FavoriteAuthor] {
+    guard let data = UserDefaults.standard.data(forKey: "favoriteAuthors"),
+          !data.isEmpty else {
+      return []
+    }
+    do {
+      let decoder = JSONDecoder()
+      return try decoder.decode([FavoriteAuthor].self, from: data)
+    } catch {
+      print("Failed to decode favorites: \(error)")
+      return []
+    }
+  }
+  
+  private func saveFavorites() {
+    do {
+      let encoder = JSONEncoder()
+      let data = try encoder.encode(favorites)
+      UserDefaults.standard.set(data, forKey: favoritesKey)
+    } catch {
+      print("Failed to encode favorites: \(error)")
     }
   }
 

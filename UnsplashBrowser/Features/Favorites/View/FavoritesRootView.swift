@@ -11,33 +11,34 @@ struct FavoritesRootView: View {
   
   @Environment(\.resolver) private var resolver
   @Environment(\.isRunningOniPad) private var isIpad
+  @Environment(\.favoriteAuthorsStore) private var store
   
   @State private var selectedAuthor: FavoriteAuthor?
   @State private var columnVisibility: NavigationSplitViewVisibility = .automatic
-  
-  private var store: FavoriteAuthorsStore? {
-    resolver.resolve(FavoriteAuthorsStore.self)
-  }
-  
-  private var imageLoader: ImageLoader? {
-    resolver.resolve(ImageLoader.self)
-  }
+  @State private var imageLoader: ImageLoader?
   
   // MARK: - Body
   
   var body: some View {
-    if let store {
-      if isIpad {
-        splitViewLayout(store: store)
+    Group {
+      if let store {
+        if isIpad {
+          splitViewLayout(store: store)
+        } else {
+          stackLayout(store: store)
+        }
       } else {
-        stackLayout(store: store)
+        ContentUnavailableView(
+          "Loading...",
+          systemImage: "arrow.clockwise",
+          description: Text("Setting up favorites")
+        )
       }
-    } else {
-      ContentUnavailableView(
-        "Loading...",
-        systemImage: "arrow.clockwise",
-        description: Text("Setting up favorites")
-      )
+    }
+    .task {
+      if imageLoader == nil {
+        imageLoader = resolver.resolve(ImageLoader.self)
+      }
     }
   }
   

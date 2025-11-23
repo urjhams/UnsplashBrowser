@@ -11,11 +11,8 @@ struct SearchPhotosView: View {
   @State private var viewModel: SearchPhotosViewModel?
   @State private var searchText = ""
   @State private var searchTask: Task<Void, Never>?
+  @State private var imageLoader: ImageLoader?
   @Namespace private var detailNamespace
-  
-  private var imageLoader: ImageLoader? {
-    resolver.resolve(ImageLoader.self)
-  }
   
   private var columns: [GridItem] {
     let columnCount = isIpad ? 5 : 3
@@ -48,6 +45,9 @@ struct SearchPhotosView: View {
       .task {
         if viewModel == nil, let apiClient = resolver.resolve(UnsplashAPIClient.self) {
           viewModel = SearchPhotosViewModel(apiClient: apiClient)
+        }
+        if imageLoader == nil {
+          imageLoader = resolver.resolve(ImageLoader.self)
         }
       }
     }

@@ -8,6 +8,10 @@ private struct ResolverKey: EnvironmentKey {
   static let defaultValue: Resolver = AppDIContainer.build()
 }
 
+private struct FavoriteAuthorsStoreKey: EnvironmentKey {
+  static let defaultValue: FavoriteAuthorsStore? = nil
+}
+
 extension EnvironmentValues {
   var resolver: Resolver {
     get {
@@ -15,6 +19,15 @@ extension EnvironmentValues {
     }
     set {
       self[ResolverKey.self] = newValue
+    }
+  }
+  
+  var favoriteAuthorsStore: FavoriteAuthorsStore? {
+    get {
+      self[FavoriteAuthorsStoreKey.self]
+    }
+    set {
+      self[FavoriteAuthorsStoreKey.self] = newValue
     }
   }
 }
