@@ -32,7 +32,7 @@ struct UnsplashBrowserApp: App {
           }
           .tag(1)
       }
-      .tint(.black)
+      .tint(.secondary)
       .environment(\.resolver, resolver)
       .environment(\.isRunningOniPad, UIDevice.current.userInterfaceIdiom == .pad)
       .environment(\.favoriteAuthorsStore, favoriteAuthorsStore)

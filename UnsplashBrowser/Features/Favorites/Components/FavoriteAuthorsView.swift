@@ -20,6 +20,13 @@ struct FavoriteAuthorsView: View {
     List(selection: $selectedAuthor) {
       ForEach(store.favorites) { author in
         AuthorRowView(author: author)
+          .contextMenu {
+            Button {
+              clear(author)
+            } label: {
+              Label("Remove from Favorites", systemImage: "heart.slash")
+            }
+          }
           .tag(author)
       }
       .onDelete(perform: deleteFavorites)
@@ -50,12 +57,16 @@ struct FavoriteAuthorsView: View {
   private func deleteFavorites(at offsets: IndexSet) {
     for index in offsets {
       let author = store.favorites[index]
-      store.toggleFavorite(author)
-      
-      // Clear selection if the removed author was selected
-      if selectedAuthor?.id == author.id {
-        selectedAuthor = nil
-      }
+      clear(author)
+    }
+  }
+  
+  private func clear(_ author: FavoriteAuthor) {
+    store.toggleFavorite(author)
+    
+    // Clear selection if the removed author was selected
+    if selectedAuthor?.id == author.id {
+      selectedAuthor = nil
     }
   }
 }
