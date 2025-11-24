@@ -50,6 +50,7 @@ struct FavoritesRootView: View {
     } detail: {
       if let selectedAuthor {
         WebProfileView(author: selectedAuthor)
+          .id(selectedAuthor.id)
       } else {
         emptyDetailView
       }
