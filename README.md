@@ -11,8 +11,15 @@
 ### Setup & Run
 
 1. **Configure API Key**
-   - Open `UnsplashBrowser/Secret/Secret.swift`
+   - Open or create `UnsplashBrowser/Secret/Secret.swift`
    - Replace `"ACCESS_KEY"` with your actual Unsplash API access key
+
+      ```swift
+      enum Secret {
+            // To get access key: https://unsplash.com/developers
+            static let accessKey = "ACCESS_KEY"
+      }
+      ```
 
 2. **Build & Run**
 
