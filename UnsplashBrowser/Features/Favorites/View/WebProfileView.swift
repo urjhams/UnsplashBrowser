@@ -8,6 +8,8 @@ import WebKit
 /// Provides navigation controls and share functionality.
 struct WebProfileView: View {
   // MARK: - Properties
+  
+  @Environment(\.isRunningOniPad) private var isIpad
 
   let author: FavoriteAuthor
 
@@ -37,7 +39,7 @@ struct WebProfileView: View {
     }
     .navigationTitle(title)
     .navigationBarTitleDisplayMode(.inline)
-    .modifier(TabBarHiddenModifier())
+    .modifier(TabBarHiddenModifier(enable: !isIpad))
     .toolbar {
       ToolbarItemGroup(placement: .bottomBar) {
         toolbarContent
@@ -111,8 +113,11 @@ struct WebProfileView: View {
 
 /// Hide the Tabbar on iOS 26 as it will cover the web view's navigation bar
 private struct TabBarHiddenModifier: ViewModifier {
+  
+  var enable = false
+  
   func body(content: Content) -> some View {
-    if #available(iOS 26.0, *) {
+    if #available(iOS 26.0, *), enable {
       content.toolbar(.hidden, for: .tabBar)
     } else {
       content
