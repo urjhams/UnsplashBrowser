@@ -37,6 +37,7 @@ struct WebProfileView: View {
     }
     .navigationTitle(title)
     .navigationBarTitleDisplayMode(.inline)
+    .toolbar(.hidden, for: .tabBar)
     .toolbar {
       ToolbarItemGroup(placement: .bottomBar) {
         toolbarContent
