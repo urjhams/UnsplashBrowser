@@ -37,7 +37,7 @@ struct WebProfileView: View {
     }
     .navigationTitle(title)
     .navigationBarTitleDisplayMode(.inline)
-    .toolbar(.hidden, for: .tabBar)
+    .modifier(TabBarHiddenModifier())
     .toolbar {
       ToolbarItemGroup(placement: .bottomBar) {
         toolbarContent
@@ -105,6 +105,18 @@ struct WebProfileView: View {
       ShareLink(item: url) {
         Image(systemName: "square.and.arrow.up")
       }
+    }
+  }
+}
+
+/// on iOS 26, tabbar will  cover the webview navigation bar in the bottom
+/// So we specifically ide it on iOS 26+
+private struct TabBarHiddenModifier: ViewModifier {
+  func body(content: Content) -> some View {
+    if #available(iOS 26.0, *) {
+      content.toolbar(.hidden, for: .tabBar)
+    } else {
+      content
     }
   }
 }
