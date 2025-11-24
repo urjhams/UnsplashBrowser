@@ -36,9 +36,6 @@ struct SearchPhotosView: View {
         searchTask?.cancel()
         let capturedValue = newValue  // Capture the value at task creation time
         searchTask = Task {
-          defer {
-            searchTask = nil  // Clean up reference
-          }
           do {
             try await Task.sleep(nanoseconds: 500_000_000)  // 0.5 second debounce
           } catch {
