@@ -97,7 +97,8 @@ extension SearchPhotosView {
     return ScrollView {
       LazyVGrid(columns: columns, spacing: spacing) {
         ForEach(viewModel.photos) { photo in
-          if let loader = imageLoader, let thumb = URL(string: photo.urls.thumb) {
+          let photoUrl = isIpad ? photo.urls.small : photo.urls.thumb
+          if let loader = imageLoader, let thumb = URL(string: photoUrl) {
             photoLink(of: photo, viewModel: viewModel, loader: loader, thumb: thumb, size: cellSize)
           }
         }
