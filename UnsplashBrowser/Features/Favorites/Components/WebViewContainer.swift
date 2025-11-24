@@ -39,6 +39,7 @@ struct WebViewContainer: UIViewRepresentable {
     @Bindable var state: WebViewStateModel
     private var urlObservation: NSKeyValueObservation?
     private var loadingObservation: NSKeyValueObservation?
+    private var titleObservation: NSKeyValueObservation?
     let onObservedTitleChange: (String?) -> Void
 
     init(state: WebViewStateModel, onObservedTitleChange: @escaping (String?) -> Void = { _ in }) {
@@ -49,13 +50,13 @@ struct WebViewContainer: UIViewRepresentable {
     deinit {
       urlObservation?.invalidate()
       loadingObservation?.invalidate()
+      titleObservation?.invalidate()
     }
     
     func setupObservers(for webView: WKWebView) {
       // Observe URL changes (catches JavaScript navigation)
       urlObservation = webView.observe(\.url, options: [.new]) { [weak self] webView, _ in
         self?.updateNavigationState(for: webView)
-        self?.onObservedTitleChange(webView.title)
       }
       
       // Observe loading state
@@ -65,6 +66,11 @@ struct WebViewContainer: UIViewRepresentable {
         if !(change.newValue ?? false) {
           self.updateNavigationState(for: webView)
         }
+      }
+      
+      // Observe title changes separately (catches dynamic title updates)
+      titleObservation = webView.observe(\.title, options: [.new]) { [weak self] webView, change in
+        self?.onObservedTitleChange(change.newValue ?? webView.title)
       }
     }
     
@@ -86,6 +92,7 @@ struct WebViewContainer: UIViewRepresentable {
     func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
       state.isLoading = false
       updateNavigationState(for: webView)
+      onObservedTitleChange(webView.title)
     }
 
     func webView(_ webView: WKWebView, didFail navigation: WKNavigation!, withError error: Error) {
