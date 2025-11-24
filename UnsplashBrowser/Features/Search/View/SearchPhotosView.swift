@@ -34,15 +34,21 @@ struct SearchPhotosView: View {
       .searchable(text: $searchText, prompt: "Search for photos...")
       .onChange(of: searchText) { _, newValue in
         searchTask?.cancel()
+        let capturedValue = newValue  // Capture the value at task creation time
         searchTask = Task {
           defer {
             searchTask = nil  // Clean up reference
           }
-          try? await Task.sleep(nanoseconds: 500_000_000)  // 0.5 second debounce
-          guard !Task.isCancelled else {
+          do {
+            try await Task.sleep(nanoseconds: 500_000_000)  // 0.5 second debounce
+          } catch {
+            return  // Task was cancelled during sleep
+          }
+          // Only proceed if the search text hasn't changed since task was created
+          guard searchText == capturedValue else {
             return
           }
-          await viewModel?.search(query: newValue)
+          await viewModel?.search(query: capturedValue)
         }
       }
       .task {
