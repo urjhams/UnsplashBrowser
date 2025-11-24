@@ -109,8 +109,7 @@ struct WebProfileView: View {
   }
 }
 
-/// on iOS 26, tabbar will  cover the webview navigation bar in the bottom
-/// So we specifically ide it on iOS 26+
+/// Hide the Tabbar on iOS 26 as it will cover the web view's navigation bar
 private struct TabBarHiddenModifier: ViewModifier {
   func body(content: Content) -> some View {
     if #available(iOS 26.0, *) {
